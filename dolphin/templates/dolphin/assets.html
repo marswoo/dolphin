@@ -1,0 +1,47 @@
+{% include "dolphin/index.html" %}
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
+<p>
+
+<div id="assets_container" style="width:100%; height:400px;"></div>
+<script>
+	var assets = {{ assets|safe }}
+	$(function () { 
+		Highcharts.setOptions({
+			global : {
+				useUTC : false
+			}
+		});
+
+		$('#assets_container').highcharts({
+			chart: {
+				type: 'line'
+			},
+			title: {
+				text: 'Assets Graph'
+			},
+			xAxis: {
+				type: 'datetime',
+			},
+			yAxis: {
+				title: {
+					text: 'Total Assets'
+				}
+			},
+			plotOptions: {
+				line: {
+					marker: {
+						enabled: false
+					}
+				}
+			},
+			series: [{
+				name: 'Total assets',
+				data: assets
+			}]
+		});
+	});
+</script>
+

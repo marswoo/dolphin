@@ -1,0 +1,5 @@
+25 9 * * 1-5 curl http://127.0.0.1:8082/dolphin/init/
+30 9 * * 1-5 curl http://127.0.0.1:8082/dolphin/start_all/
+15 13 * * 1-5 /home/hecor/programs/bin/python /home/hecor/workspace/TF_site/dolphin/GC_trader.py >> /tmp/news.log 2>&1
+56 14 * * 1-5 /home/hecor/programs/bin/python /home/hecor/workspace/TF_site/dolphin/GC_trader.py >> /tmp/news.log 2>&1
+58 14 * * 1-5 curl http://127.0.0.1:8082/dolphin/trade/update_today_trades/

@@ -1,0 +1,26 @@
+{% load url from future %}
+<a href="{% url 'dolphin:index' %}">Home</a>
+<a href="{% url 'dolphin:start_all' %}">Stall All</a>
+<a href="{% url 'dolphin:stop_all' %}">Stop All</a>
+<a href="{% url 'dolphin:view_assets' %}">View Assets</a>
+
+<table border="1">
+	<tr>
+		<td>pair</td>
+		<td>status</td>
+		<td>command</td>
+	</tr>
+{% for pair, status in pair_status.items %}
+	<tr>
+		<td><a href="{% url 'dolphin:detail' pair today_date %}" >{{ pair }}</a></td>
+		{% if status %}
+			<td>running</td>
+			<td><a href="{% url 'dolphin:stop' pair %}" >stop</a></td>
+		{% else %}
+			<td>idle</td>
+			<td><a href="{% url 'dolphin:start' pair %}" >start</a></td>
+		{% endif %}
+	</tr>
+{% endfor %}
+</table>
+

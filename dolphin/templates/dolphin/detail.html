@@ -1,0 +1,146 @@
+{% include "dolphin/index.html" %}
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
+<p>
+<div id="deal_container">
+	<table border="1">
+		<tr>
+			<td>Time</td>
+			<td>Stockid</td>
+			<td>Buy/Sell</td>
+			<td>Price</td>
+			<td>Amount</td>
+			<td>Is Real?</td>
+		</tr>
+	{% for deal in deals %}
+		<tr>
+			<td>{{ deal.timestamp }}</td>
+			<td>{{ deal.stockid }}</td>
+			{% if deal.is_buy %}
+				<td>Sell</td>
+			{% else %}
+				<td>Buy</td>
+			{% endif %}
+			<td>{{ deal.price }}</td>
+			<td>{{ deal.amount }}</td>
+			<td>{{ deal.is_real }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+</div>
+
+<div id="delta_container" style="width:100%; height:400px;"></div>
+<script>
+	var deltas_positive = {{ deltas_positive|safe }}
+	var deltas_negative = {{ deltas_negative|safe }}
+	var two_deal_times = {{ two_deal_times|safe }}
+	$(function () { 
+		Highcharts.setOptions({
+			global : {
+				useUTC : false
+			}
+		});
+
+		$('#delta_container').highcharts({
+			chart: {
+				type: 'line',
+				zoomType: 'x',
+			},
+			title: {
+				text: 'Delta between stock pair'
+			},
+			xAxis: {
+				type: 'datetime',
+				minute: '%H:%M',
+				plotLines: [{
+					color: '#FF0000',
+					width: 2,
+					value: two_deal_times[0]
+					}, {
+					color: '#00FF00',
+					width: 2,
+					value: two_deal_times[1]
+				}]
+			},
+			yAxis: {
+				title: {
+					text: 'Delta'
+				}
+			},
+			plotOptions: {
+				line: {
+					marker: {
+						enabled: false
+					}
+				}
+			},
+			series: [{
+				name: 'positive',
+				data: deltas_positive
+			}, {
+				name: 'negative',
+				data: deltas_negative
+			}]
+		});
+	});
+</script>
+
+<div id="metadata_container" style="width:100%; height:400px;"></div>
+<script>
+	var stock_metadatas_1 = {{ stock_metadatas_1|safe }}
+	var stock_metadatas_2 = {{ stock_metadatas_2|safe }}
+	var two_deal_times = {{ two_deal_times|safe }}
+	var stockids = {{ stockids|safe }}
+	$(function () { 
+		Highcharts.setOptions({
+			global : {
+				useUTC : false
+			}
+		});
+
+		$('#metadata_container').highcharts({
+			chart: {
+				type: 'line',
+				zoomType: 'x',
+			},
+			title: {
+				text: 'Current price of stock pair'
+			},
+			xAxis: {
+				type: 'datetime',
+				minute: '%H:%M',
+				plotLines: [{
+					color: '#FF0000',
+					width: 2,
+					value: two_deal_times[0]
+					}, {
+					color: '#00FF00',
+					width: 2,
+					value: two_deal_times[1]
+				}]
+			},
+			yAxis: {
+				title: {
+					text: 'Current Price'
+				}
+			},
+			plotOptions: {
+				line: {
+					marker: {
+						enabled: false
+					}
+				}
+			},
+			series: [{
+				name: stockids[0],
+				data: stock_metadatas_1
+			}, {
+				name: stockids[1],
+				data: stock_metadatas_2
+			}]
+		});
+	});
+</script>
+
