@@ -4,6 +4,7 @@
 from Util import *
 import math, time, datetime
 import os.path
+import traceback
 
 class OnesideDolphin(object):
     def __init__(self, pairid, data_feeder, account):
@@ -224,15 +225,17 @@ class OnesideDolphin(object):
    
     ''' 卖掉昨天买入的 '''
     def clear_yesterday_position(self, sell_infos_list):
-        #sellprice, sellnum = self.sell(self.want_sell_stockid, sell_infos_list[self.want_sell_index])
-        sellprice = 10
-        sellnum = 100
+        sellprice, sellnum = self.sell(self.want_sell_stockid, sell_infos_list[self.want_sell_index])
 
         profit = self.want_sell_stock_amount * (sellprice - self.want_sell_stock_enter_price)
         self.profit = profit - 32   # 减去手续费，粗略估计值
         record = '\t'.join([self.pairid, self.today_date, str(self.profit), str(self.profit), '0'])
         log('asset_info', record)
-        log('debug_info', ' '.join(['sellpoint(enter_price,sell_price):', self.want_sell_stockid, self.today_date, str(self.want_sell_stock_enter_price), str(sellprice)]))
+        try:
+            log('debug_info', ' '.join(['sellpoint(enter_price,sell_price):', self.want_sell_stockid, self.today_date, str(self.want_sell_stock_enter_price), str(sellprice)]))
+        except:
+            log("error", traceback.format_exc())
+            
         self.want_sell_index = 0
 
     
@@ -323,6 +326,7 @@ class OnesideDolphin(object):
             if self.want_sell_index != 0 and self.if_leave_time_right():
                 log('deal_debug', '达到退出条件，clear yesterday position')
                 self.clear_yesterday_position((None, sell_infos_1, sell_infos_2))
+                log("debug", "clear_yesterday_position over")
 
             # 当天尚未交易
             if self.today_bought_stock == 0:
@@ -333,9 +337,7 @@ class OnesideDolphin(object):
                         # 买低和买高不同的策略
                         if self.buy_strategy == self.buy_strategy_category['Buy_high']:
                             want_buy_stock_index = 3 - want_buy_stock_index
-                        #self.buy(self.stock_pair[want_buy_stock_index-1], (buy_infos_1, buy_infos_2)[want_buy_stock_index-1])
-                        self.today_buy_price = 10
-                        self.today_bought_amount = 100
+                        self.buy(self.stock_pair[want_buy_stock_index-1], (buy_infos_1, buy_infos_2)[want_buy_stock_index-1])
 
                         self.today_bought_stock = want_buy_stock_index
                         break

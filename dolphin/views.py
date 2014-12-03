@@ -28,7 +28,9 @@ def init(request):
     if account:
         del account
     account = CTPHBAccount()
+    time.sleep(2)
     account.update_account_info()
+    time.sleep(2)
     print "account ready"
     return HttpResponse('Init Success!')
 
@@ -37,11 +39,14 @@ def check_init():
     if not stock_datafeeder:
         stock_datafeeder = CTPL2StockDataFeeder()
         print "stock_datafeeder check_init"
+        time.sleep(2)
 
     global account
     if not account:
         account = CTPHBAccount()
+        time.sleep(2)
         account.update_account_info()
+        time.sleep(2)
         print "account check_init"
 
 def get_stockdata(request, stockid):
@@ -66,6 +71,10 @@ def clear(request, pair):
 
 
 def trade(request, functionid):
+    global account
+    if not account:
+        account = CTPHBAccount()
+        time.sleep(2)
     if functionid == 'get_account_info':
         return HttpResponse( str(account.get_account_info()) )
     elif functionid == 'update_account_info':
