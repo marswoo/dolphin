@@ -20,9 +20,7 @@ candidate_stock_pairs = [
     'sh600389_sh600596',    # 金改
     'sz002441_sz300068',    # 电气设备
     'sh600017_sh601880',    # 港口
-    'sh600756_sz002474',    # 软件
     'sh600884_sz002091',    # 动力锂电池
-    'sz000758_sz000993',    # 稀土
     'sh600880_sz300052',    # 手机游戏
     'sh600597_sh600887',    # 乳业
     'sh600789_sz002166',    # 生物制药
@@ -32,13 +30,14 @@ candidate_stock_pairs = [
     'sh600031_sz000157',
     'sh600999_sh601788',
     'sz300042_sz300270',
-    'sh600410_sz002544',
     'sz002031_sz300193',
     'sh600343_sh600879',
     'sz000568_sz000858',
     'sz002279_sz002474',
 #   'sh600199_sh600809',    # 酒类
 #   'sz000021_sz000066',    # 电子设备
+#   'sz000758_sz000993',    # 稀土
+#   'sh600410_sz002544',
 ]
 
 
@@ -131,32 +130,38 @@ def if_has_big_news(pairid, today_date):
 
 ''' store some information to database '''
 def store_to_database(category, message):
-    if category == 'delta_info':
-        message = message.replace('None', '0.0')
-    items = tuple(message.split('\t'))
-    placeholder = ', '.join(['%s']*len(items))
-    if category == 'delta_info':
-        fields = 'pairid, timestamp, minutes_to_closemarket, delta1, delta2'
-        g_cursor.execute('INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')', items)
-    elif category == 'stock_realdata':
-        fields = 'stockid, date, time, current_price, yesterday_close_price, today_open_price, today_highest_price, today_lowest_price, deal_stock_amount, deal_stock_money, buy1_price, buy1_amount, buy2_price, buy2_amount, buy3_price, buy3_amount, sell1_price, sell1_amount, sell2_price, sell2_amount, sell3_price, sell3_amount'
-        g_cursor.execute('INSERT INTO dolphin_stockmetadata (' + fields + ') VALUES (' + placeholder + ')', items)
-    elif category in ['buy_info', 'sell_info', 'realdeal_info']:
-        fields = 'timestamp, is_buy, stockid, price, amount, is_real'
-        g_cursor.execute('INSERT INTO dolphin_deal (' + fields + ') VALUES (' + placeholder + ')', items)
-    elif category == 'asset_info':
-        fields = 'pairid, date, cash, total, is_real'
-        g_cursor.execute("select total from dolphin_asset where pairid = %s order by date desc limit 1", (items[0], ))
-        total = g_cursor.fetchall()[0][0]
-        items = list(items)
-        items[3] = str(float(items[2]) + float(total))
-        items = tuple(items)
-        log("debug", "update dolphin_asset: total(before)=%s, profit=%s, total(after)=%s" % (str(total), str(items[2]), str(items[3])))
-        g_cursor.execute('INSERT INTO dolphin_asset (' + fields + ') VALUES (' + placeholder + ')', items)
-            
-    elif category == 'news_info':
-        fields = 'pairid, date, news, label'
-        g_cursor.execute('INSERT INTO dolphin_notificationnews (' + fields + ') VALUES (' + placeholder + ')', items)
+    try:
+        if category == 'delta_info':
+            message = message.replace('None', '0.0')
+        items = tuple(message.split('\t'))
+        placeholder = ', '.join(['%s']*len(items))
+        if category == 'delta_info':
+            fields = 'pairid, timestamp, minutes_to_closemarket, delta1, delta2'
+            g_cursor.execute('INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')', items)
+        elif category == 'stock_realdata':
+            fields = 'stockid, date, time, current_price, yesterday_close_price, today_open_price, today_highest_price, today_lowest_price, deal_stock_amount, deal_stock_money, buy1_price, buy1_amount, buy2_price, buy2_amount, buy3_price, buy3_amount, sell1_price, sell1_amount, sell2_price, sell2_amount, sell3_price, sell3_amount'
+            g_cursor.execute('INSERT INTO dolphin_stockmetadata (' + fields + ') VALUES (' + placeholder + ')', items)
+        elif category in ['buy_info', 'sell_info', 'realdeal_info']:
+            fields = 'timestamp, is_buy, stockid, price, amount, is_real'
+            g_cursor.execute('INSERT INTO dolphin_deal (' + fields + ') VALUES (' + placeholder + ')', items)
+        elif category == 'asset_info':
+            fields = 'pairid, date, cash, total, is_real'
+            g_cursor.execute("select total from dolphin_asset where pairid = %s order by date desc limit 1", (items[0], ))
+            res = g_cursor.fetchall()
+            total = 0
+            if len(res) != 0:
+                total = res[0][0]
+                items = list(items)
+                items[3] = str(float(items[2]) + float(total))
+                items = tuple(items)
+                log("debug", "update dolphin_asset: total(before)=%s, profit=%s, total(after)=%s" % (str(total), str(items[2]), str(items[3])))
+            g_cursor.execute('INSERT INTO dolphin_asset (' + fields + ') VALUES (' + placeholder + ')', items)
+                
+        elif category == 'news_info':
+            fields = 'pairid, date, news, label'
+            g_cursor.execute('INSERT INTO dolphin_notificationnews (' + fields + ') VALUES (' + placeholder + ')', items)
+    except:
+        print >> open("/tmp/OnesideDolphin/errorlog", "a"), traceback.format_exc()
 
 
 ''' init logging '''

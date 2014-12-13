@@ -95,12 +95,12 @@ void Trader::OnRspOrderInsert(CSecurityFtdcInputOrderField *pInputOrder,CSecurit
 
 void Trader::OnRtnTrade(CSecurityFtdcTradeField *pTrade)
 {
-	cerr << "--->>> Trade notification: \n" << pTrade->InstrumentID << '\t' << pTrade->Direction << '\t' << pTrade->Price << '\t' << pTrade->Volume << '\t' << pTrade->TradeDate << ' ' << pTrade->TradeTime << endl;
+	cout << "--->>> Trade notification: \n" << pTrade->InstrumentID << '\t' << pTrade->Direction << '\t' << pTrade->Price << '\t' << pTrade->Volume << '\t' << pTrade->TradeDate << ' ' << pTrade->TradeTime << endl;
 }
 
 void Trader::OnRtnOrder(CSecurityFtdcOrderField *pOrder)
 {
-	cerr << "--->>> Order Return notification: " << pOrder->InstrumentID << '\t' << pOrder->LimitPrice << '\t' << pOrder->VolumeTraded << endl;
+	cout << "--->>> Order Return notification: \n" << pOrder->InstrumentID << '\t' << pOrder->LimitPrice << '\t' << pOrder->VolumeTraded << endl;
 }
 
 // 针对用户请求的出错通知

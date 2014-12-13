@@ -23,5 +23,5 @@ if __name__ == '__main__':
     trader.update_account_info()
     print 'Today deals:', trader.get_today_trades()
     #time.sleep(10)
-    print "-"60
+    print "-"*60
     print

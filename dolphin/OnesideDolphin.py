@@ -14,6 +14,7 @@ class OnesideDolphin(object):
         self.stockid_2 = self.stock_pair[1]
         self.stockdata_1 = None
         self.stockdata_2 = None
+        self.today_close_tag = False
         self.expense_each_deal = 20000.0
         self.buy_strategy_category = {'Buy_low':0, 'Buy_high':1}
         self.buy_strategy = self.buy_strategy_category['Buy_low']
@@ -231,11 +232,6 @@ class OnesideDolphin(object):
         self.profit = profit - 32   # 减去手续费，粗略估计值
         record = '\t'.join([self.pairid, self.today_date, str(self.profit), str(self.profit), '0'])
         log('asset_info', record)
-        try:
-            log('debug_info', ' '.join(['sellpoint(enter_price,sell_price):', self.want_sell_stockid, self.today_date, str(self.want_sell_stock_enter_price), str(sellprice)]))
-        except:
-            log("error", traceback.format_exc())
-            
         self.want_sell_index = 0
 
     
@@ -255,21 +251,26 @@ class OnesideDolphin(object):
         #log('debug', "self.minutes_to_closemarket: "+str(self.minutes_to_closemarket))
 
         if self.minutes_to_closemarket == -1:
-            self.close_today()
             return False
+        elif self.minutes_to_closemarket == 1 and not self.today_close_tag:
+            self.today_close_tag = True
+            self.close_today()
         elif self.minutes_to_closemarket == 120.5:
             wait_for_half_open()
             return True
         
         self.stockdata_1 = self.data_feeder.get_data(self.stockid_1)
         self.stockdata_2 = self.data_feeder.get_data(self.stockid_2)
+
+        if None in (self.stockdata_1, self.stockdata_2):#可能停牌，可能发生异常
+            return False
             
         return True
 
 
     ''' run dolphin to a pair of stocks '''
     def run(self):
-        self.check_big_news()
+        #self.check_big_news()
         self.get_yesterday_position()
 
         while True:
@@ -277,7 +278,7 @@ class OnesideDolphin(object):
             self.last_stock_delta[2] = self.current_stock_delta[2]
             if not self.get_stock_data():
                 log('error', ' not self.get_stock_data')
-                return
+                break
 
             stockdata_1 = self.stockdata_1
             stockdata_2 = self.stockdata_2

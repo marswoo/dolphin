@@ -6,6 +6,7 @@ from conf.dbconf import dbconf
 import urllib2, os, time
 import MySQLdb
 import Util
+import sys
 import traceback
 
 class StockDataFeeder(object):
@@ -47,11 +48,14 @@ class LocalWebServiceDataFeeder(StockDataFeeder):
         try:
             url = 'http://127.0.0.1:8082/dolphin/get_stockdata/%s/' % stockid
             content = urllib2.urlopen(url).read()
+            #if content.count("0,"*12) != 0: #停牌
+            #    return None
             items = content.split(',')
             stock_data = self.pack_stock_realdata(stockid, items)
             
             return stock_data
         except:
+            print >> sys.stderr, "get_data exception."
             traceback.print_exc()   
             return None
 
@@ -159,11 +163,14 @@ class StockHistoryMySQLDataFeeder(StockDataFeeder):
 
 if __name__ == "__main__":
     import time
-#    feeder = StockSinaRealDataFeeder()
-    feeder = LocalWebServiceDataFeeder()
+    import json
+    feeder = StockSinaRealDataFeeder()
+#    feeder = LocalWebServiceDataFeeder()
     while True:
-        data1 = feeder.get_data('sz002029')
-        print str(datetime.datetime.now())[11:-7], data1['time'], data1['buy_1_price'], data1['buy_1_amount'], data1['buy_2_price'], data1['buy_2_amount'], data1['buy_3_price'], data1['buy_3_amount']
-        time.sleep(1)
+        data = feeder.get_data('sh600663')
+        for key in data:
+            print key, data[key]
+        break
+        #print str(datetime.datetime.now())[11:-7], data['time'], data['buy_1_price'], data['buy_1_amount'], data['buy_2_price'], data['buy_2_amount'], data['buy_3_price'], data['buy_3_amount']
 
 
