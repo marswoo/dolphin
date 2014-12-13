@@ -7,8 +7,6 @@ import datafeeder, trader
 def test_datafeeder():
     #测试账户
     #t = datafeeder.DataFeeder('tcp://211.144.195.163:44513', '2011', '020090042332', '123321')
-    #真实账户
-    t = datafeeder.DataFeeder('tcp://101.231.210.1:24513', '2011', '050000006268', '2111519')
     #t = datafeeder.DataFeeder('tcp://101.231.210.1:8900', '2011', '050000006268', '2111519')
     time.sleep(1)
     #t.subscrib_market_data('sz002029')
