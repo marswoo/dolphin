@@ -4,7 +4,7 @@ from dolphin.models import PairDelta, Deal, Asset, StockMetaData, MarketCloseDat
 #from django.utils import simplejson
 import json as simplejson
 from django.db.models import Q
-import shlex, subprocess, datetime, time
+import shlex, subprocess, datetime, time, sys, pickle, os
 from django.core.serializers.json import DjangoJSONEncoder
 
 from dolphin.CTPStockDataFeeder import CTPL2StockDataFeeder
@@ -170,12 +170,39 @@ def detail(request, pair, date):
     two_deal_times = [ time.mktime(deal.timestamp.timetuple())*1000 for deal in deals]
     if len(two_deal_times) >= 3:
         two_deal_times = [ two_deal_times[0], two_deal_times[2] ]
-    deltas_positive = [ [time.mktime(delta.timestamp.timetuple())*1000, float(delta.delta1)] for delta in deltas ]
-    deltas_negative = [ [time.mktime(delta.timestamp.timetuple())*1000, float(delta.delta2)] for delta in deltas ]
+    if not os.path.isdir("/tmp/OnesideDolphin/view_detail/"):
+        os.system("mkdir -p /tmp/OnesideDolphin/view_detail/")
+
+    deltas_positive_file = "/tmp/OnesideDolphin/view_detail/" + pair + "_deltas_positive"
+    if os.path.exists(deltas_positive_file):
+        deltas_positive = pickle.load(open(deltas_positive_file, "rb"))
+    else:
+        deltas_positive = [ [time.mktime(delta.timestamp.timetuple())*1000, float(delta.delta1)] for delta in deltas ]
+        pickle.dump(deltas_positive, open(deltas_positive_file, "wb"))
+        
+    deltas_negative_file = "/tmp/OnesideDolphin/view_detail/" + pair + "_deltas_negative"
+    if os.path.exists(deltas_negative_file):
+        deltas_negative = pickle.load(open(deltas_negative_file, "rb"))
+    else:
+        deltas_negative = [ [time.mktime(delta.timestamp.timetuple())*1000, float(delta.delta2)] for delta in deltas ]
+        pickle.dump(deltas_negative, open(deltas_negative_file, "wb"))
+
     metadata1 = StockMetaData.objects.filter(stockid=stockids[0], date=date)
     metadata2 = StockMetaData.objects.filter(stockid=stockids[1], date=date)
-    stock_metadatas_1 = [ [time.mktime( time.strptime(str(date)+' '+str(d.time), '%Y-%m-%d %H:%M:%S') )*1000, float((d.current_price-d.yesterday_close_price)/d.yesterday_close_price) ] for d in metadata1 ]
-    stock_metadatas_2 = [ [time.mktime( time.strptime(str(date)+' '+str(d.time), '%Y-%m-%d %H:%M:%S') )*1000, float((d.current_price-d.yesterday_close_price)/d.yesterday_close_price) ] for d in metadata2 ]
+    stock_metadatas_1_file = "/tmp/OnesideDolphin/view_detail/" + pair + "_stock_metadatas_1"
+    if os.path.exists(stock_metadatas_1_file):
+        stock_metadatas_1 = pickle.load(open(stock_metadatas_1_file, "rb"))
+    else:
+        stock_metadatas_1 = [ [time.mktime( time.strptime(str(date)+' '+str(d.time), '%Y-%m-%d %H:%M:%S') )*1000, float((d.current_price-d.yesterday_close_price)/d.yesterday_close_price) ] for d in metadata1 ]
+        pickle.dump(stock_metadatas_1, open(stock_metadatas_1_file, "wb"))
+
+    stock_metadatas_2_file = "/tmp/OnesideDolphin/view_detail/" + pair + "_stock_metadatas_2"
+    if os.path.exists(stock_metadatas_2_file):
+        stock_metadatas_2 = pickle.load(open(stock_metadatas_2_file, "rb"))
+    else:
+        stock_metadatas_2 = [ [time.mktime( time.strptime(str(date)+' '+str(d.time), '%Y-%m-%d %H:%M:%S') )*1000, float((d.current_price-d.yesterday_close_price)/d.yesterday_close_price) ] for d in metadata2 ]
+        pickle.dump(stock_metadatas_2, open(stock_metadatas_2_file, "wb"))
+
 
     return render(request, 'dolphin/detail.html', 
             {'pair_status': pair_status,

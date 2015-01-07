@@ -5,6 +5,7 @@ from Util import *
 import math, time, datetime
 import os.path
 import traceback
+import os
 
 class OnesideDolphin(object):
     def __init__(self, pairid, data_feeder, account):
@@ -91,11 +92,22 @@ class OnesideDolphin(object):
 
     ''' 判断是否入场 '''
     def if_enter_market(self, want_buy_stock_index):
-        return self.current_stock_delta[3-want_buy_stock_index] >= 0.025 \
+        if self.current_stock_delta[3-want_buy_stock_index] >= 0.025 \
                 and self.max_delta_of_today[3-want_buy_stock_index]-self.current_stock_delta[3-want_buy_stock_index] < 0.01 \
                 and (self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index] >= 0.01 or self.current_stock_delta[want_buy_stock_index] >= 0) \
                 and self.current_stock_delta[want_buy_stock_index] < 0.025 \
-                and self.current_delta_relative_prices[want_buy_stock_index] >= self.get_delta_threshold_of_entering_market()
+                and self.current_delta_relative_prices[want_buy_stock_index] >= self.get_delta_threshold_of_entering_market():
+            debug_data = []
+            debug_data.append(str(self.current_stock_delta[3-want_buy_stock_index]))
+            debug_data.append(str(self.max_delta_of_today[3-want_buy_stock_index]-self.current_stock_delta[3-want_buy_stock_index]))
+            debug_data.append(str(self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index]))
+            debug_data.append(str(self.current_stock_delta[want_buy_stock_index]))
+            debug_data.append(str(self.current_stock_delta[want_buy_stock_index]))
+            debug_data.append(str(self.current_delta_relative_prices[want_buy_stock_index]) + " " + str(self.get_delta_threshold_of_entering_market()))
+            log("info_buy", "买入\n" + "\n".join(debug_data))
+            return True
+        else:
+            return False
 
 
     ''' 判断清仓的时机是否好 '''
@@ -107,15 +119,27 @@ class OnesideDolphin(object):
             return True
         if not self.if_enter_triggered:
             if self.current_stock_delta[self.want_sell_index] >= 0.025 or self.current_delta_relative_prices[3-self.want_sell_index] >= 0.01:
+                debug_data = []
+                debug_data.append(str(self.current_stock_delta[self.want_sell_index]))
+                debug_data.append(str(self.current_delta_relative_prices[3-self.want_sell_index]))
+                log("info_sell", "卖出trigger\n" + "\n".join(debug_data))
                 self.if_enter_triggered = 1
             return False
         else:
             stock_data = (None, self.stockdata_1, self.stockdata_2)[self.want_sell_index]
             if stock_data['sell_1_price'] == 0:
                 return False
-            return (stock_data['sell_1_price'] - stock_data['buy_1_price']) / stock_data['sell_1_price'] <= 0.0025 \
+            if (stock_data['sell_1_price'] - stock_data['buy_1_price']) / stock_data['sell_1_price'] <= 0.0025 \
                 and self.current_stock_delta[self.want_sell_index] < self.last_stock_delta[self.want_sell_index] \
-                and self.max_delta_of_today[self.want_sell_index] - self.current_stock_delta[self.want_sell_index] >= 0.005
+                and self.max_delta_of_today[self.want_sell_index] - self.current_stock_delta[self.want_sell_index] >= 0.005:
+                debug_data = []
+                debug_data.append(str((stock_data['sell_1_price'] - stock_data['buy_1_price']) / stock_data['sell_1_price']))
+                debug_data.append(str(self.current_stock_delta[self.want_sell_index]) + " " + str(self.last_stock_delta[self.want_sell_index]))
+                debug_data.append(str(self.max_delta_of_today[self.want_sell_index] - self.current_stock_delta[self.want_sell_index]))
+                log("info_sell", "卖出\n" + "\n".join(debug_data))
+                return True
+            else:
+                return False
 
 
     '''
@@ -251,7 +275,7 @@ class OnesideDolphin(object):
         #log('debug', "self.minutes_to_closemarket: "+str(self.minutes_to_closemarket))
 
         if self.minutes_to_closemarket == -1:
-            return False
+            return -1
         elif self.minutes_to_closemarket == 1 and not self.today_close_tag:
             self.today_close_tag = True
             self.close_today()
@@ -263,6 +287,8 @@ class OnesideDolphin(object):
         self.stockdata_2 = self.data_feeder.get_data(self.stockid_2)
 
         if None in (self.stockdata_1, self.stockdata_2):#可能停牌，可能发生异常
+            error_msg = "get_stock_data error! " + self.stockid_1 + "_" + self.stockid_2
+            print os.popen("echo " + error_msg + " | mail -s \"dolphin get_stock_data alert!\" woody213@yeah.net,80382133@qq.com").read()
             return False
             
         return True
@@ -272,12 +298,21 @@ class OnesideDolphin(object):
     def run(self):
         #self.check_big_news()
         self.get_yesterday_position()
+        error_count = 0
 
         while True:
             self.last_stock_delta[1] = self.current_stock_delta[1]
             self.last_stock_delta[2] = self.current_stock_delta[2]
-            if not self.get_stock_data():
+            rt = self.get_stock_data()
+            if self.minutes_to_closemarket == 1 and rt is False:
+                error_count += 1
+            if error_count > 10:
+                break
+            if rt is False:
                 log('error', ' not self.get_stock_data')
+                log('error', str(self.minutes_to_closemarket))
+                continue
+            if rt == -1:
                 break
 
             stockdata_1 = self.stockdata_1
