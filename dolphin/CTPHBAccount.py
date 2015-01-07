@@ -3,10 +3,11 @@
 
 from pzyctp.stock import trader
 import time
+from conf.access_conf import access_conf
 
 class CTPHBAccount():
     def __init__(self):
-        self.trader = trader.Trader('tcp://222.66.55.163:41205', '2011', 'user', 'passwd')
+        self.trader = trader.Trader(access_conf['trader']['addr'], access_conf['trader']['broker'], access_conf['trader']['account'], access_conf['trader']['passwd'])
         time.sleep(5)
         self.stocklist = {}
         self.account_info= {}
@@ -24,7 +25,7 @@ class CTPHBAccount():
 
         n_total_buy_num = int(n_total_buy_num)
         buyprice = round(n_total_buy_money / n_total_buy_num, 2)
-        self.trader.buy(stockid, str(buyprice+0.03), n_total_buy_num)
+        self.trader.buy(stockid, str(buyprice+0.05), n_total_buy_num)
         
         return buyprice, n_total_buy_num
 
@@ -39,7 +40,7 @@ class CTPHBAccount():
             return 0, 0
 
         sellprice = round(n_total_sell_money / n_total_sell_num, 2)
-        self.trader.sell(stockid, str(sellprice-0.03), n_total_sell_num)
+        self.trader.sell(stockid, str(sellprice-0.05), n_total_sell_num)
 
         return sellprice, n_total_sell_num
 

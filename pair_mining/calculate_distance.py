@@ -2,28 +2,23 @@ import sys
 import os
 import datetime
 
-START_DATE = 20130101
-#START_DATE = 0
-
 class PairMining(object):
-    def __init__(self):
-        self.data_director = './processed_data/'
+    def __init__(self, data_dir):
+        self.data_director = data_dir
         self.stock_info = dict()
 
-        self.pair_similarity = dict()
-        self.fn_output_similarity = './similarity.dat'
-
-    def loadStockInfo(self):
+    def loadStockInfo(self, start_date):
         cmd = 'ls %s' % self.data_director
         fileList = os.popen(cmd).readlines()
         for file in fileList:
             file = file.rstrip('\n')
-            self.loadOneStockInfo(file)
+            self.loadOneStockInfo(file, start_date)
         return True
 
-    def loadOneStockInfo(self, fileName):
+    def loadOneStockInfo(self, fileName, start_date):
+        start_date = int(start_date)
         fin = open(self.data_director + fileName, 'r')
-        stockId = fileName.rstrip('.TXT')
+        stockId = fileName
         self.stock_info[stockId] = dict()
         for line in fin:
             line = line.rstrip('\n')
@@ -31,31 +26,34 @@ class PairMining(object):
             date = items[0]
             date = date.replace('/', '')
             increase_price = float(items[1])
-            if int(date) < START_DATE:
+            if int(date) < start_date:
                 continue
             else:
                 self.stock_info[stockId][date] = increase_price
         fin.close()
         return True
 
-    def pairMining(self):
+    def pairMining(self, simFunction):
         #get stockId list
         stockId_list = list()
         cmd = 'ls %s' % self.data_director
         fileList = os.popen(cmd).readlines()
         for file in fileList:
-            stockId = file.rstrip('.TXT\n')
+            stockId = file.strip()
             stockId_list.append(stockId)
 
+        stockId_list.sort()
         #calculate similarity distance between any two stocks
         for i in range(0, len(stockId_list) - 1):
             for j in range(i + 1, len(stockId_list)):
                 stock_id_1 = stockId_list[i]
                 stock_id_2 = stockId_list[j]
-                self.calculateSimilarity(stock_id_1, stock_id_2)
+                similarity = self.calculateSimilarity(stock_id_1, stock_id_2, simFunction)
+                print stock_id_1 + 'VS' + stock_id_2 + '\t' + str(similarity)
+
         return True
 
-    def calculateSimilarity(self, stock_id_1, stock_id_2):
+    def calculateSimilarity(self, stock_id_1, stock_id_2, simFunction):
         #stock_1_info is a dict, key:date, value:increase_price
         stock_1_info = self.stock_info[stock_id_1]
         stock_2_info = self.stock_info[stock_id_2]
@@ -67,12 +65,14 @@ class PairMining(object):
             price_list_1.append(stock_1_info[date])
             price_list_2.append(stock_2_info[date])
         if len(price_list_1) <= 50:
-            return False
-        #similarity = self.cosineBasedDistance(price_list_1, price_list_2)
-        similarity = self.euclideanBasedDistance(price_list_1, price_list_2)
-        #similarity = self.pearsonBasedDistance(price_list_1, price_list_2)
-        self.pair_similarity[stock_id_1 + 'VS' + stock_id_2] = similarity
-        return True
+            return 0
+        if simFunction == 'cos':
+            similarity = self.cosineBasedDistance(price_list_1, price_list_2)
+        elif simFunction == 'euc':
+            similarity = self.euclideanBasedDistance(price_list_1, price_list_2)
+        elif simFunction == 'pea':
+            similarity = self.pearsonBasedDistance(price_list_1, price_list_2)
+        return similarity
 
     def cosineBasedDistance(self, price_list_1, price_list_2):
         if len(price_list_1) != len(price_list_2):
@@ -115,20 +115,18 @@ class PairMining(object):
         simi = 1 / (1 + pow(f_sum_dist / len(price_list_1), 0.5))
         return simi
 
-    def output(self):
-        fout = open(self.fn_output_similarity, 'w')
-        for pair, similarity in sorted(self.pair_similarity.items(), key = lambda d:d[1], reverse = False):
-            print >> fout, '\t'.join([pair, str(similarity)])
-        fout.close()
-        return True
-
-    def run(self):
-        self.loadStockInfo()
-        self.pairMining()
-        self.output()
+    def run(self, start_date, simFunction):
+        self.loadStockInfo(start_date)
+        self.pairMining(simFunction)
 
 if __name__ == '__main__':
-    print datetime.datetime.today()
-    pairMiningObj = PairMining()
-    pairMiningObj.run()
-    print datetime.datetime.today()
+    if len(sys.argv) != 4:
+        print 'Usage:', sys.argv[0], '<data_dir> <start_date> <similarity_type: cos for cosine and euc for euclidean and pea for pearson>'
+        sys.exit(0)
+    if not sys.argv[3] in ['cos', 'euc', 'pea']:
+        print 'similarity type is illegal. cos for cosine and euc for euclidean and pea for pearson'
+        sys.exit(0)
+    pairMiningObj = PairMining(sys.argv[1])
+    pairMiningObj.run(sys.argv[2], sys.argv[3])
+    
+

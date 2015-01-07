@@ -7,7 +7,7 @@ data_dir = sys.argv[1]
 START_DATE = sys.argv[2]
 
 for file in os.listdir(data_dir):
-    stockid = file[:6]
+    stockid = file[:8]
     volatility = 0.0
     with open(os.path.join(data_dir+file)) as f:
         items = [ item.split('\t') for item in f.read().split('\n')[:-1] ]

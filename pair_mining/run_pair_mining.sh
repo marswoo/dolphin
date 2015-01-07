@@ -1,6 +1,7 @@
-raw_data_dir='./raw_data_140511/'
-processed_data_dir='./processed_data_140511/'
-start_date='20130101'
+source ~/.bashrc
+raw_data_dir='./raw_data_20141223/'
+processed_data_dir='./processed_data/'
+start_date='20140101'
 
 
 filelist=`ls $raw_data_dir`

@@ -55,7 +55,7 @@ class LocalWebServiceDataFeeder(StockDataFeeder):
             
             return stock_data
         except:
-            print >> sys.stderr, "get_data exception."
+            print >> sys.stderr, "get_data exception. items: " + str(items)
             traceback.print_exc()   
             return None
 

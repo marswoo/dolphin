@@ -296,9 +296,10 @@ class OnesideDolphin(object):
 
     ''' run dolphin to a pair of stocks '''
     def run(self):
-        #self.check_big_news()
+        self.check_big_news()
         self.get_yesterday_position()
         error_count = 0
+        error_count_all = 0
 
         while True:
             self.last_stock_delta[1] = self.current_stock_delta[1]
@@ -308,9 +309,11 @@ class OnesideDolphin(object):
                 error_count += 1
             if error_count > 10:
                 break
+            if error_count_all > 100:
+                break
             if rt is False:
-                log('error', ' not self.get_stock_data')
-                log('error', str(self.minutes_to_closemarket))
+                error_count_all += 1
+                log('error', ' not self.get_stock_data' + " " + str(self.minutes_to_closemarket) + " " + str(error_count_all))
                 continue
             if rt == -1:
                 break

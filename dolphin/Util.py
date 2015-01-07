@@ -14,30 +14,41 @@ import traceback
 candidate_stock_pairs = [ 
     # online
     'sh600216_sz002001',    # 医药
-    'sh601801_sh601999',    # 传媒
     'sz002136_sz002601',    # 钛白粉
-    'sh600209_sz000735',    # 海南旅游岛
+    'sh600209_sz000735',    # 罗顿发展 罗牛山
     'sh600389_sh600596',    # 金改
-    'sz002441_sz300068',    # 电气设备
-    'sh600017_sh601880',    # 港口
-    'sh600884_sz002091',    # 动力锂电池
+    'sz002441_sz300068',    # 众达业 南都电源
+    'sh600017_sh601880',    # 日照港 大连港
+    'sh600884_sz002091',    # 杉杉股份 江苏国泰
     'sh600880_sz300052',    # 手机游戏
     'sh600597_sh600887',    # 乳业
-    'sh600789_sz002166',    # 生物制药
     'sh600435_sh600501',    # 航天军工
-    'sh600639_sh600663',    # 园区开发
-    'sh600391_sz000561',    # 航天军工
+    'sh600639_sh600663',    # 浦东金桥 陆家嘴
     'sh600031_sz000157',
-    'sh600999_sh601788',
-    'sz300042_sz300270',
-    'sz002031_sz300193',
     'sh600343_sh600879',
     'sz000568_sz000858',
     'sz002279_sz002474',
+    'sh600199_sh600809', #/金种子酒/山西汾酒
+    'sz000877_sh600425', #/天山股份/青松建化
+    'sz000001_sh601166', #/平安银行/兴业银行
+    'sh600011_sh600027', #/华能国际/华电国际
+    'sh600757_sh601801', #/长江传媒/皖新传媒
+    'sh600633_sh601928', #/浙报传媒/凤凰传媒
+    'sz000758_sh601168', #/中色股份/西部矿业
+    'sh600030_sh600837',
+    'sh601601_sh601628',
+    'sz000789_sz002233',
+#   'sh600999_sh601788',
+#   'sz000021_sz000066',
+#   'sh600789_sz002166',    # 鲁抗医药 莱茵生物
+#   'sh601801_sh601999',    # 传媒
+#   'sh600391_sz000561',    # 航天军工
+#   'sz002031_sz300193',
 #   'sh600199_sh600809',    # 酒类
 #   'sz000021_sz000066',    # 电子设备
 #   'sz000758_sz000993',    # 稀土
 #   'sh600410_sz002544',
+#   'sz300042_sz300270',
 ]
 
 
@@ -120,7 +131,7 @@ def disable_store2database():
 
 
 def if_has_big_news(pairid, today_date):
-    g_cursor.execute("SELECT label FROM dolphin_notificationnews WHERE pairid=%s and date=%s", (pairid, today_date))
+    g_cursor.execute("SELECT tag FROM dolphin_notificationnews WHERE pairid=%s and date=%s", (pairid, today_date))
     r = g_cursor.fetchone()
     if r is not None and int(r[0]) == 1:
         return True
@@ -158,7 +169,7 @@ def store_to_database(category, message):
             g_cursor.execute('INSERT INTO dolphin_asset (' + fields + ') VALUES (' + placeholder + ')', items)
                 
         elif category == 'news_info':
-            fields = 'pairid, date, news, label'
+            fields = 'pairid, date, news, tag'
             g_cursor.execute('INSERT INTO dolphin_notificationnews (' + fields + ') VALUES (' + placeholder + ')', items)
     except:
         print >> open("/tmp/OnesideDolphin/errorlog", "a"), traceback.format_exc()
@@ -362,6 +373,6 @@ def init_account(account, pairid):
 
 if __name__ == '__main__':
     #print get_current_price('sz000089')
-    print get_minutes_to_closemarket('14:58:59')
+    print get_minutes_to_closemarket('15:01:00')
 
 

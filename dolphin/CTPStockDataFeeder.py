@@ -3,10 +3,11 @@
 
 from pzyctp.stock import datafeeder
 import time
+from conf.access_conf import access_conf
 
 class CTPL2StockDataFeeder:
     def __init__(self):
-        self.l2data = datafeeder.DataFeeder('tcp://101.231.210.1:24513', '2011', 'username', 'passwd')
+        self.l2data = datafeeder.DataFeeder(access_conf['datafeeder']['addr'], access_conf['datafeeder']['broker'], access_conf['datafeeder']['account'], access_conf['datafeeder']['passwd'])
         self.ExchangeIDDict = {'sh': 'SSE', 'sz': 'SZE'}
         self.ExchangeIDDict_reverse = {'SSE': 'sh', 'SZE': 'sz'}
         time.sleep(5)
