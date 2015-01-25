@@ -2,10 +2,12 @@
 30 9 * * 1-5 curl http://127.0.0.1:8082/dolphin/start_all/
 
 15 13 * * 1-5 cd /root/framework.online/dolphin && python GC_trader.py >> log/GC_trader.log 2>&1
-56 14 * * 1-5 cd /root/framework.online/dolphin && python GC_trader.py >> log/GC_trader.log 2>&1
+54 14 * * 1-5 cd /root/framework.online/dolphin && python GC_trader.py >> log/GC_trader.log 2>&1
 58 14 * * 1-5 cd /root/framework.online/dolphin && curl http://127.0.0.1:8082/dolphin/trade/update_today_trades/ >> log/crontab_update_today_trades.log 2>&1
 
 0 9 * * 1-5 cd /root/framework.online/dolphin && python news_notification.py &> /dev/null
 */1 * * * 1-5 cd /root/framework.online/dolphin && python alert.py >> log/alert.log 2>&1
 5 15 * * 1-5 cd /root/framework.online/dolphin && python catch_view_detail.py &> /dev/null
 #*/5 9 * * 1-5 cd /root/framework.online/dolphin && python get_account_info.py >> log/get_account_info.res 2>&1
+
+31 9 * * 1-5 cd /root/framework.online/dolphin && python beiyinmei.py &> /dev/null

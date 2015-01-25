@@ -115,7 +115,7 @@ class OnesideDolphin(object):
 #        if self.minutes_to_closemarket > 235:
 #            return False
         #log("debug", "if_leave_time_right: %s, %s, %s"%(str(self.minutes_to_closemarket), str(self.if_enter_triggered), str(self.want_sell_index)))
-        if self.minutes_to_closemarket <= 5:
+        if self.minutes_to_closemarket <= 7:
             return True
         if not self.if_enter_triggered:
             if self.current_stock_delta[self.want_sell_index] >= 0.025 or self.current_delta_relative_prices[3-self.want_sell_index] >= 0.01:
