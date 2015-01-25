@@ -32,6 +32,7 @@ def show_result( pairid, r1, r2, S1, S2 ):
 
 
 def run_strategy( pairid, start_date, end_date, Strategy ):
+    Util.init_logging('Exp_' + str(Strategy).strip("'>").split(".")[-1] + "_" + pairid)
     if Strategy is NoneStrategy:
         return defaultdict(int)
 
@@ -77,10 +78,12 @@ if __name__ == '__main__':
     Util.reconnect_database(dbconf)
     Util.disable_store2database()
     os.system( 'rm -f ./dolphin/log/Experiment_'+pairid )
-    Util.init_logging('Experiment_'+pairid)
 
-    S1 = ST.Test_leave_chaseup_sellbuygap
-    S2 = NoneStrategy
+    #S1 = ST.Test_leave_chaseup_sellbuygap
+    #S2 = NoneStrategy
+    S1 = ST.Test_enter_20141219
+    #S2 = ST.Oneside_offline_experiment
+    S2 = EX
 
     if pairid.lower() == 'all':
         for pairid in candidate_stock_pairs:

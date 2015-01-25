@@ -4,6 +4,7 @@
 from dolphin.OnesideDolphin import OnesideDolphin
 from dolphin.Util import get_minutes_to_closemarket
 import os.path
+from time import *
 
 
 #########################################################################################
@@ -14,6 +15,7 @@ class Oneside_offline_experiment(OnesideDolphin):
 
     def __init__(self, pairid, data_feeder, account, today_date):
         OnesideDolphin.__init__(self, pairid, data_feeder, account)
+        self.max_stock_delta = [0.0] * 3
         self.today_date = today_date
         self.yesterday_position_file = Oneside_offline_experiment.yesterday_position_path + self.pairid
         if not os.path.isfile(self.yesterday_position_file):
@@ -71,7 +73,15 @@ class Test_enter_buystock_rise(Oneside_offline_experiment):
                 and (self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index] >= 0.01 or self.current_stock_delta[want_buy_stock_index] >= 0) \
                 and self.current_stock_delta[want_buy_stock_index] < 0.025 \
                 and self.current_delta_relative_prices[want_buy_stock_index] >= self.get_delta_threshold_of_entering_market()
-
+'''从高处掉下不入'''
+class Test_enter_20141219(Oneside_offline_experiment):
+    def if_enter_market(self, want_buy_stock_index):
+        return self.current_stock_delta[3-want_buy_stock_index] >= 0.025 \
+                and self.max_delta_of_today[3-want_buy_stock_index]-self.current_stock_delta[3-want_buy_stock_index] < 0.01 \
+                and (self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index] >= 0.01 or self.current_stock_delta[want_buy_stock_index] >= 0) \
+                and self.current_stock_delta[want_buy_stock_index] < 0.025 \
+                and self.current_delta_relative_prices[want_buy_stock_index] >= self.get_delta_threshold_of_entering_market() \
+                and self.max_delta_of_today[want_buy_stock_index] - self.current_stock_delta[want_buy_stock_index] < 0.015
 
 #########################################################################################
 ''' 清仓时机的策略比较 '''

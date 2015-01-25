@@ -10,12 +10,18 @@ from django.core.serializers.json import DjangoJSONEncoder
 from dolphin.CTPStockDataFeeder import CTPL2StockDataFeeder
 from dolphin.StockDataFeeder import StockSinaRealDataFeeder
 from dolphin.CTPHBAccount import CTPHBAccount
-from dolphin.Util import candidate_stock_pairs
+from Util import candidate_stock_pairs
+from Util import pairs_names
+from django.template.defaulttags import register
 
 stock_pairs = candidate_stock_pairs
-
+stock_pair_names = pairs_names
 stock_datafeeder = None
 account = None
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
 def init(request):
     global stock_datafeeder
@@ -104,6 +110,7 @@ def index(request):
                 {
                     'pair_status': pair_status,
                     'today_date': datetime.date.today(),
+                    'pair_names': stock_pair_names,
                 })
 
 def get_pair_status():
@@ -221,6 +228,7 @@ def detail(request, pair, date):
              'stock_metadatas_1': simplejson.dumps(stock_metadatas_1, cls=DjangoJSONEncoder),
              'stock_metadatas_2': simplejson.dumps(stock_metadatas_2, cls=DjangoJSONEncoder),
              'stockids': simplejson.dumps(stockids),
+             'pair_names': stock_pair_names,
             } )
 
 def view_assets(request): 
@@ -232,5 +240,6 @@ def view_assets(request):
             {'pair_status': pair_status,
              'today_date': datetime.date.today(),
              'assets': simplejson.dumps(assets),
+             'pair_names': stock_pair_names,
             })
 
