@@ -7,6 +7,7 @@ import logging, datetime, sys
 import MySQLdb, urllib2
 from warnings import filterwarnings
 import traceback
+from conf import dbconf
 
 
 ##################################################################
@@ -173,6 +174,7 @@ def disable_store2database():
 
 
 def if_has_big_news(pairid, today_date):
+    reconnect_database(dbconf.dbconf)
     g_cursor.execute("SELECT tag FROM dolphin_notificationnews WHERE pairid=%s and date=%s", (pairid, today_date))
     r = g_cursor.fetchone()
     if r is not None and int(r[0]) == 1:
@@ -415,6 +417,7 @@ def init_account(account, pairid):
 
 if __name__ == '__main__':
     #print get_current_price('sz000089')
-    print get_minutes_to_closemarket('15:01:00')
+    #print get_minutes_to_closemarket('15:01:00')
+    print if_has_big_news("sh600030_sh600837", "2015-01-26")
 
 

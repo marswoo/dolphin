@@ -57,8 +57,10 @@ if __name__ == '__main__':
             db_content = ''
             #url = 'http://money.finance.sina.com.cn/corp/view/vCB_AllMemordDetail.php?stockid='+stockid[2:]
             url = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllNewsStock/symbol/%s.phtml' % stockid
-            #print url
-            html = urllib2.urlopen(url).read()
+            try:
+                html = urllib2.urlopen(url).read().decode("gbk").encode("utf8")
+            except:
+                html = urllib2.urlopen(url).read()
             soup = BeautifulSoup(html)
             raw_date_str = str(soup.find(id="con02-7").find_all("ul"))
             date_list = []

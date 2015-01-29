@@ -42,8 +42,8 @@ class OnesideDolphin(object):
         self.today_bought_amount = 0
         self.profit = 0
         self.minutes_to_closemarket = 241
-        self.max_delta_of_today = [0.0]*3
-        self.min_delta_of_today = [0.0]*3
+        self.max_delta_of_today = [-0.1]*3
+        self.min_delta_of_today = [0.1]*3
         ''' [0] not used; 
             [1] represents delta for buy 1(low)
             [2] represents delta for buy 2(low)

@@ -3,6 +3,7 @@
 
 from dolphin.OnesideDolphin import OnesideDolphin
 from dolphin.Util import get_minutes_to_closemarket
+from dolphin.Util import log
 import os.path
 from time import *
 
@@ -76,15 +77,62 @@ class Test_enter_buystock_rise(Oneside_offline_experiment):
 '''从高处掉下不入'''
 class Test_enter_20141219(Oneside_offline_experiment):
     def if_enter_market(self, want_buy_stock_index):
-        return self.current_stock_delta[3-want_buy_stock_index] >= 0.025 \
-                and self.max_delta_of_today[3-want_buy_stock_index]-self.current_stock_delta[3-want_buy_stock_index] < 0.01 \
-                and (self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index] >= 0.01 or self.current_stock_delta[want_buy_stock_index] >= 0) \
-                and self.current_stock_delta[want_buy_stock_index] < 0.025 \
-                and self.current_delta_relative_prices[want_buy_stock_index] >= self.get_delta_threshold_of_entering_market() \
-                and self.max_delta_of_today[want_buy_stock_index] - self.current_stock_delta[want_buy_stock_index] < 0.015
+        if self.current_stock_delta[3-want_buy_stock_index] >= 0.025 \
+            and self.max_delta_of_today[3-want_buy_stock_index]-self.current_stock_delta[3-want_buy_stock_index] < 0.01 \
+            and (self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index] >= 0.01 or self.current_stock_delta[want_buy_stock_index] >= 0) \
+            and self.current_stock_delta[want_buy_stock_index] < 0.025 \
+            and self.current_delta_relative_prices[want_buy_stock_index] >= self.get_delta_threshold_of_entering_market() \
+            and self.max_delta_of_today[want_buy_stock_index] - self.current_stock_delta[want_buy_stock_index] < 0.01:
+            debug_data = []
+            debug_data.append(str(self.current_stock_delta[3-want_buy_stock_index]))
+            debug_data.append(str(self.max_delta_of_today[3-want_buy_stock_index]-self.current_stock_delta[3-want_buy_stock_index]))
+            debug_data.append(str(self.current_stock_delta[want_buy_stock_index] - self.min_delta_of_today[want_buy_stock_index]))
+            debug_data.append(str(self.current_stock_delta[want_buy_stock_index]))
+            debug_data.append(str(self.current_stock_delta[want_buy_stock_index]))
+            debug_data.append(str(self.current_delta_relative_prices[want_buy_stock_index]) + " " + str(self.get_delta_threshold_of_entering_market()))
+            log("info_buy", "买入\n" + "\n".join(debug_data))
+            return True
+        else:
+            return False
 
 #########################################################################################
 ''' 清仓时机的策略比较 '''
+
+class Test_leave_20150129(Oneside_offline_experiment):
+    def if_leave_time_right(self):
+#        if self.minutes_to_closemarket > 235:
+#            return False
+        #log("debug", "if_leave_time_right: %s, %s, %s"%(str(self.minutes_to_closemarket), str(self.if_enter_triggered), str(self.want_sell_index)))
+        if self.minutes_to_closemarket <= 7:
+            return True
+        if not self.if_enter_triggered:
+            if self.current_stock_delta[self.want_sell_index] >= 0.025 \
+                or self.current_delta_relative_prices[3-self.want_sell_index] >= 0.01 \
+                or self.current_stock_delta[want_sell_index] - self.current_stock_delta[3 - want_sell_index] - self.min_delta_of_today[want_sell_index]:
+
+                debug_data = []
+                debug_data.append(str(self.current_stock_delta[self.want_sell_index]))
+                debug_data.append(str(self.current_delta_relative_prices[3-self.want_sell_index]))
+                log("info_sell", "卖出trigger\n" + "\n".join(debug_data))
+                self.if_enter_triggered = 1
+            return False
+        else:
+            stock_data = (None, self.stockdata_1, self.stockdata_2)[self.want_sell_index]
+            if stock_data['sell_1_price'] == 0:
+                return False
+            if (stock_data['sell_1_price'] - stock_data['buy_1_price']) / stock_data['sell_1_price'] <= 0.0025 \
+                and self.current_stock_delta[self.want_sell_index] < self.last_stock_delta[self.want_sell_index] \
+                and self.max_delta_of_today[self.want_sell_index] - self.current_stock_delta[self.want_sell_index] >= 0.005:
+                debug_data = []
+                debug_data.append(str((stock_data['sell_1_price'] - stock_data['buy_1_price']) / stock_data['sell_1_price']))
+                debug_data.append(str(self.current_stock_delta[self.want_sell_index]) + " " + str(self.last_stock_delta[self.want_sell_index]))
+                debug_data.append(str(self.max_delta_of_today[self.want_sell_index] - self.current_stock_delta[self.want_sell_index]))
+                log("info_sell", "卖出\n" + "\n".join(debug_data))
+                return True
+            else:
+                return False
+
+
 class Test_leave_fix_time(Oneside_offline_experiment):
     def if_leave_time_right(self):
         return self.minutes_to_closemarket <= 5

@@ -12,7 +12,7 @@
 		<td>command</td>
 	</tr>
 
-{% for pair, value in pair_status.items %}
+{% for pair, status in pair_status.items %}
 	<tr>
 		<td><a href="{% url 'dolphin:detail' pair today_date %}" >{{ pair }}</td>
 		<td>{{ pair_names|get_item:pair }}</td>

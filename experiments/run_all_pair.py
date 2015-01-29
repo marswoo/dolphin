@@ -7,21 +7,25 @@ from dolphin.Util import candidate_stock_pairs as pairs
 
 beg = sys.argv[1]
 end = sys.argv[2]
+tag = sys.argv[3]
 
-dir = "run_all_pair."+beg.replace("-","") + "-"+ end.replace("-", "")
+dir = "result/run_all_pair."+beg.replace("-","") + "-"+ end.replace("-", "") + "." + tag
 if sys.argv.count("f") != 0:
     os.system("rm -rf " + dir)
-    os.system("rm -rf log")
+    os.system("rm -rf result/log." + tag)
     print "dir %s deleted." % dir
-    print "dir log deleted."
+    print "dir result/log deleted."
 os.system("mkdir -p " + dir)
-os.system("mkdir -p log")
+os.system("mkdir -p result/log." + tag)
 
 for pair in pairs:
     print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "--- processing %s." % pair
     print >> open(dir + "/" + "exp_"  + pair, "w"), os.popen("python strategy_comparator.py " + pair + " " + beg + " " + end).read()
 
 output = open(dir + "/result", "w")
+output_data = []
+output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}".format("pairid", "date", "test_stra_prof", "org_stra_prof"))
+res = [0.0] * 2
 
 for f in os.listdir(dir):
     data = [i for i in open(dir + "/" + f).read().split("\n") if i != ""]
@@ -30,7 +34,14 @@ for f in os.listdir(dir):
         if len(tmp) != 3:
             continue
         if tmp[1] != tmp[2] and re.match("^\d", tmp[0]) is not None: #两种策略的结果不相同，并且是日期
-            print >> output, "{0:s}\t{1:s}\ttest_stra:{2:s}\torg_stra:{3:s}".format(f.strip("exp_"), tmp[0], tmp[1], tmp[2])
-    print >> output, ""
+            output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}".format(f.strip("exp_"), tmp[0], tmp[1], tmp[2]))
+            res[0] += float(tmp[1])
+            res[1] += float(tmp[2])
 
-os.system("mv dolphin/log/Exp* log/")
+output_data.append("\n{0:20s}\t{1:20s}".format("test_stra_prof_sum", "org_stra_prof_sum"))
+output_data.append("{0:20s}\t{1:20s}".format(str(res[0]), str(res[1])))
+for line in output_data:
+    if line.strip() != "":
+        print >> output, line
+
+os.system("mv dolphin/log/Exp* result/log." + tag)
