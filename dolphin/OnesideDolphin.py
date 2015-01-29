@@ -44,6 +44,7 @@ class OnesideDolphin(object):
         self.minutes_to_closemarket = 241
         self.max_delta_of_today = [-0.1]*3
         self.min_delta_of_today = [0.1]*3
+        self.min_span_delta_of_today = [1.0] * 3 
         ''' [0] not used; 
             [1] represents delta for buy 1(low)
             [2] represents delta for buy 2(low)
@@ -358,9 +359,11 @@ class OnesideDolphin(object):
             self.current_stock_delta[1] = (stockdata_1['current_price'] - stockdata_1['yesterday_close_price']) / stockdata_1['yesterday_close_price']
             self.max_delta_of_today[1] = max(self.max_delta_of_today[1], self.current_stock_delta[1])
             self.min_delta_of_today[1] = min(self.min_delta_of_today[1], self.current_stock_delta[1])
+            self.min_span_delta_of_today[1] = min(self.min_span_delta_of_today[1], self.current_stock_delta[1] - self.current_stock_delta[2])
             self.current_stock_delta[2] = (stockdata_2['current_price'] - stockdata_2['yesterday_close_price']) / stockdata_2['yesterday_close_price']
             self.max_delta_of_today[2] = max(self.max_delta_of_today[2], self.current_stock_delta[2])
             self.min_delta_of_today[2] = min(self.min_delta_of_today[2], self.current_stock_delta[2])
+            self.min_span_delta_of_today[2] = min(self.min_span_delta_of_today[2], self.current_stock_delta[2] - self.current_stock_delta[1])
 
             if self.want_sell_index != 0 and self.if_leave_time_right():
                 log('deal_debug', '达到退出条件，clear yesterday position')

@@ -108,11 +108,14 @@ class Test_leave_20150129(Oneside_offline_experiment):
         if not self.if_enter_triggered:
             if self.current_stock_delta[self.want_sell_index] >= 0.025 \
                 or self.current_delta_relative_prices[3-self.want_sell_index] >= 0.01 \
-                or self.current_stock_delta[want_sell_index] - self.current_stock_delta[3 - want_sell_index] - self.min_delta_of_today[want_sell_index]:
+                or self.current_stock_delta[want_sell_index] - self.current_stock_delta[3 - want_sell_index] \
+                   - self.min_span_delta_of_today[self.want_sell_index] < 0.01:
 
                 debug_data = []
                 debug_data.append(str(self.current_stock_delta[self.want_sell_index]))
                 debug_data.append(str(self.current_delta_relative_prices[3-self.want_sell_index]))
+                debug_data.append(str(self.current_stock_delta[want_sell_index] - self.current_stock_delta[3 - want_sell_index]\
+                                      - self.min_span_delta_of_today[self.want_sell_index]))
                 log("info_sell", "卖出trigger\n" + "\n".join(debug_data))
                 self.if_enter_triggered = 1
             return False
