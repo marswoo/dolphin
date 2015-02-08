@@ -16,15 +16,18 @@ if sys.argv.count("f") != 0:
     print "dir %s deleted." % dir
     print "dir result/log deleted."
 os.system("mkdir -p " + dir)
+os.system("mkdir -p dolphin/log")
 os.system("mkdir -p result/log." + tag)
 
 for pair in pairs:
+    #if pair != "sz002279_sz002474":
+    #    continue
     print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "--- processing %s." % pair
     print >> open(dir + "/" + "exp_"  + pair, "w"), os.popen("python strategy_comparator.py " + pair + " " + beg + " " + end).read()
 
 output = open(dir + "/result", "w")
 output_data = []
-output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}".format("pairid", "date", "test_stra_prof", "org_stra_prof"))
+output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}".format("pairid", "date", "test_stra_prof", "org_stra_prof", "offset"))
 res = [0.0] * 2
 
 for f in os.listdir(dir):
@@ -34,7 +37,7 @@ for f in os.listdir(dir):
         if len(tmp) != 3:
             continue
         if tmp[1] != tmp[2] and re.match("^\d", tmp[0]) is not None: #两种策略的结果不相同，并且是日期
-            output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}".format(f.strip("exp_"), tmp[0], tmp[1], tmp[2]))
+            output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}\t{4:20s}".format(f.strip("exp_"), tmp[0], tmp[1], tmp[2], str(float(tmp[1]) - float(tmp[2]))))
             res[0] += float(tmp[1])
             res[1] += float(tmp[2])
 
