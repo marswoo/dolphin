@@ -20,12 +20,12 @@ class Oneside_offline_experiment(OnesideDolphin):
         self.today_date = today_date
         self.yesterday_position_file = Oneside_offline_experiment.yesterday_position_path + self.pairid
         if not os.path.isfile(self.yesterday_position_file):
-            open(self.yesterday_position_file, 'w').write(str(None))
+            self.init_status()
 
     @staticmethod
     def before(pairid):
         yesterday_position_file = Oneside_offline_experiment.yesterday_position_path + pairid
-        open(yesterday_position_file, 'w').write(str((0, 0, 0, 0, 0, 0)))
+        #open(yesterday_position_file, 'w').write(str((0, 0, 0, 0, 0, 0)))
     
     @staticmethod
     def after(pairid):

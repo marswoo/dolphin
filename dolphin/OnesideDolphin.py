@@ -22,12 +22,15 @@ class OnesideDolphin(object):
         self.data_feeder = data_feeder
         self.account = account
         self.base_enter_threshold = 0.013
+        self.check_dump_flag = True
         self.yesterday_position_file = '/tmp/OnesideDolphin/YesterdayPosition/' + self.pairid
         os.system("mkdir -p /tmp/OnesideDolphin/YesterdayPosition/")
         if not os.path.isfile(self.yesterday_position_file):
-            open(self.yesterday_position_file, 'w').write(str((0, 0, 0, 0, 0, 0)))
+            self.init_status()
+            #open(self.yesterday_position_file, 'w').write("empty=True")
 
         self.new_day()
+        self.load_status()
 
 
     def new_day(self):
@@ -66,13 +69,79 @@ class OnesideDolphin(object):
 
         # update position information
         self.update_volatility()
-        position = None
-        if self.today_bought_stock in [1, 2]:
-            position = (self.today_bought_stock, self.pairid.split('_')[ self.today_bought_stock - 1 ], self.today_buy_price, self.today_bought_amount, self.volatility[0], self.volatility[1])
-        else:
-            position = (0, 0, 0, 0, self.volatility[0], self.volatility[1])
-        open(self.yesterday_position_file, 'w').write(str(position))
+        #position = None
+        #if self.today_bought_stock in [1, 2]:
+        #    position = (self.today_bought_stock, self.pairid.split('_')[ self.today_bought_stock - 1 ], self.today_buy_price, self.today_bought_amount, self.volatility[0], self.volatility[1])
+        #else:
+        #    position = (0, 0, 0, 0, self.volatility[0], self.volatility[1])
+        #open(self.yesterday_position_file, 'w').write(str(position))
+        self.dump_status()
 
+    
+    def dump_status(self):
+        status = []
+        status.append("self.today_bought_stock = %s" % str(self.today_bought_stock))
+        status.append("self.today_buy_price = %s" % str(self.today_buy_price))
+        status.append("self.today_bought_amount = %s" % str(self.today_bought_amount))
+        status.append("self.profit = %s" % str(self.profit))
+        status.append("self.max_delta_of_today = %s" % str(self.max_delta_of_today))
+        status.append("self.min_delta_of_today = %s" % str(self.min_delta_of_today))
+        status.append("self.min_span_delta_of_today = %s" % str(self.min_span_delta_of_today))
+        status.append("self.if_enter_triggered = %s" % str(self.if_enter_triggered))
+        status.append("self.want_sell_index = %s" % str(self.want_sell_index))
+        status.append("self.want_sell_stockid = %s" % str(self.want_sell_stockid))
+        status.append("self.want_sell_stock_enter_price = %s" % str(self.want_sell_stock_enter_price))
+        status.append("self.want_sell_stock_amount = %s" % str(self.want_sell_stock_amount))
+        status.append("self.volatility = %s" % str(self.volatility))
+        open(self.yesterday_position_file, 'w').write("\n".join(status))
+
+
+    def init_status(self):
+        status = []
+        status.append("self.today_bought_stock = 0") 
+        status.append("self.today_buy_price = -1") 
+        status.append("self.today_bought_amount = 0") 
+        status.append("self.profit = 0") 
+        status.append("self.max_delta_of_today = [-0.1]*3") 
+        status.append("self.min_delta_of_today = [0.1]*3") 
+        status.append("self.min_span_delta_of_today = [1.0]*3") 
+        status.append("self.if_enter_triggered = 0") 
+        status.append("self.want_sell_index = 0") 
+        status.append("self.want_sell_stockid = 0") 
+        status.append("self.want_sell_stock_enter_price = 0") 
+        status.append("self.want_sell_stock_amount = 0") 
+        status.append("self.volatility = [0,0]") 
+        open(self.yesterday_position_file, 'w').write("\n".join(status))
+
+   
+    def load_status(self):
+        data = [i for i in open(self.yesterday_position_file, 'r').read().split("\n") if i != ""]
+        self.today_bought_stock = eval(data[0].split('=')[1].strip())
+        self.today_buy_price = eval(data[1].split('=')[1].strip())
+        self.today_bought_amount = eval(data[2].split('=')[1].strip())
+        self.profit = eval(data[3].split('=')[1].strip())
+        self.max_delta_of_today = eval(data[4].split('=')[1].strip())
+        self.min_delta_of_today = eval(data[5].split('=')[1].strip())
+        self.min_span_delta_of_today = eval(data[6].split('=')[1].strip())
+        self.if_enter_triggered = eval(data[7].split('=')[1].strip())
+        self.want_sell_index = eval(data[8].split('=')[1].strip())
+        self.want_sell_stockid = eval(data[9].split('=')[1].strip())
+        self.want_sell_stock_enter_price = eval(data[10].split('=')[1].strip())
+        self.want_sell_stock_amount = eval(data[11].split('=')[1].strip())
+        self.volatility = eval(data[12].split('=')[1].strip())
+
+
+    def check_dump(self, time1, time2):
+        time1 = datetime.datetime.strptime(time1, "%Y-%m-%d %H:%M:%S")
+        time2 = datetime.datetime.strptime(time2, "%Y-%m-%d %H:%M:%S")
+        now = datetime.datetime.now()
+        delta1 = now - time1
+        delta2 = now - time2
+        if delta1.seconds > 45 or delta2.seconds > 45:
+            if self.check_dump_flag:
+                self.dump_status()
+                self.check_dump_flag = False
+        
 
     def update_volatility(self):
         if self.stockdata_1 is None or self.stockdata_2 is None:
@@ -237,7 +306,7 @@ class OnesideDolphin(object):
             log('stock_realdata', record)
 
     
-    ''' 得到昨日的仓位 '''
+    ''' 得到昨日的仓位 已废弃 '''
     def get_yesterday_position(self):
         yesterday_position = eval(open(self.yesterday_position_file, 'r').read())
         #log("debug", "yesterday_position: "+str(yesterday_position))
@@ -298,7 +367,8 @@ class OnesideDolphin(object):
     ''' run dolphin to a pair of stocks '''
     def run(self):
         self.check_big_news()
-        self.get_yesterday_position()
+        #self.get_yesterday_position()
+        self.load_status()
         error_count = 0
         error_count_all = 0
 
@@ -353,6 +423,9 @@ class OnesideDolphin(object):
             self.current_delta_relative_prices[2] = round(current_relative_price_id_1 - current_relative_price_id_2, 4)
         
             log('delta_info', '\t'.join([ self.pairid, self.today_date+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]) ]))
+
+            #判断delta时间是否和当前时间相差超过阈值，如果是，则dump当前指标准备重启
+            self.check_dump(self.today_date+' '+stockdata_1['time'], self.today_date+' '+stockdata_2['time'])
             
             self.max_delta_of_today[0] = max(self.max_delta_of_today[0], self.current_delta_relative_prices[1], self.current_delta_relative_prices[2])
             self.min_delta_of_today[0] = min(self.min_delta_of_today[0], self.current_delta_relative_prices[1], self.current_delta_relative_prices[2])

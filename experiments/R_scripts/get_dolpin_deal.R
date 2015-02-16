@@ -116,7 +116,7 @@ for (i in 1:length(res_0[,1])){
   }  
 }
 
-write.table(result, "output/dolphin_deal.txt")
+write.table(result, "output/dolphin_deal.txt", sep = "\t")
 
 ##########################
 #end
