@@ -55,7 +55,7 @@ class LocalWebServiceDataFeeder(StockDataFeeder):
             
             return stock_data
         except:
-            print >> sys.stderr, "get_data exception. items: " + str(items)
+            print >> open("/tmp/OnesideDolphin/errorlog", "a"), "get_data exception. items: " + str(items) + "\n" + traceback.format_exc()
             traceback.print_exc()   
             return None
 

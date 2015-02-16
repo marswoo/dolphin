@@ -75,19 +75,20 @@ class OnesideDolphin(object):
         #else:
         #    position = (0, 0, 0, 0, self.volatility[0], self.volatility[1])
         #open(self.yesterday_position_file, 'w').write(str(position))
-        self.dump_status()
+        self.dump_status(False)
 
     
-    def dump_status(self):
+    def dump_status(self, flag=True):
         status = []
-        status.append("self.today_bought_stock = %s" % str(self.today_bought_stock))
-        status.append("self.today_buy_price = %s" % str(self.today_buy_price))
-        status.append("self.today_bought_amount = %s" % str(self.today_bought_amount))
-        status.append("self.profit = %s" % str(self.profit))
-        status.append("self.max_delta_of_today = %s" % str(self.max_delta_of_today))
-        status.append("self.min_delta_of_today = %s" % str(self.min_delta_of_today))
-        status.append("self.min_span_delta_of_today = %s" % str(self.min_span_delta_of_today))
-        status.append("self.if_enter_triggered = %s" % str(self.if_enter_triggered))
+        if flag:
+            status.append("self.today_bought_stock = %s" % str(self.today_bought_stock))
+            status.append("self.today_buy_price = %s" % str(self.today_buy_price))
+            status.append("self.today_bought_amount = %s" % str(self.today_bought_amount))
+            status.append("self.profit = %s" % str(self.profit))
+            status.append("self.max_delta_of_today = %s" % str(self.max_delta_of_today))
+            status.append("self.min_delta_of_today = %s" % str(self.min_delta_of_today))
+            status.append("self.min_span_delta_of_today = %s" % str(self.min_span_delta_of_today))
+            status.append("self.if_enter_triggered = %s" % str(self.if_enter_triggered))
         status.append("self.want_sell_index = %s" % str(self.want_sell_index))
         status.append("self.want_sell_stockid = %s" % str(self.want_sell_stockid))
         status.append("self.want_sell_stock_enter_price = %s" % str(self.want_sell_stock_enter_price))
