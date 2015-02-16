@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     #S1 = ST.Test_leave_chaseup_sellbuygap
     #S2 = NoneStrategy
-    S1 = ST.Test_enter_20141219
+    S1 = ST.Test_leave_20150129
     #S2 = ST.Oneside_offline_experiment
     S2 = EX
 

@@ -20,12 +20,12 @@ class Oneside_offline_experiment(OnesideDolphin):
         self.today_date = today_date
         self.yesterday_position_file = Oneside_offline_experiment.yesterday_position_path + self.pairid
         if not os.path.isfile(self.yesterday_position_file):
-            open(self.yesterday_position_file, 'w').write(str(None))
+            self.init_status()
 
     @staticmethod
     def before(pairid):
         yesterday_position_file = Oneside_offline_experiment.yesterday_position_path + pairid
-        open(yesterday_position_file, 'w').write(str((0, 0, 0, 0, 0, 0)))
+        #open(yesterday_position_file, 'w').write(str((0, 0, 0, 0, 0, 0)))
     
     @staticmethod
     def after(pairid):
@@ -108,11 +108,12 @@ class Test_leave_20150129(Oneside_offline_experiment):
         if not self.if_enter_triggered:
             if self.current_stock_delta[self.want_sell_index] >= 0.025 \
                 or self.current_delta_relative_prices[3-self.want_sell_index] >= 0.01 \
-                or self.current_stock_delta[want_sell_index] - self.current_stock_delta[3 - want_sell_index] - self.min_delta_of_today[want_sell_index]:
+                or self.minutes_to_closemarket < 118:
 
                 debug_data = []
                 debug_data.append(str(self.current_stock_delta[self.want_sell_index]))
                 debug_data.append(str(self.current_delta_relative_prices[3-self.want_sell_index]))
+                debug_data.append(str(self.minutes_to_closemarket))
                 log("info_sell", "卖出trigger\n" + "\n".join(debug_data))
                 self.if_enter_triggered = 1
             return False
