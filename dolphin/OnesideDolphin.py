@@ -343,6 +343,7 @@ class OnesideDolphin(object):
         record = '\t'.join([self.pairid, self.today_date, str(self.profit), str(self.profit), '0'])
         log('asset_info', record)
         self.want_sell_index = 0
+        self.dump_status()
 
     
     ''' get profit from virtual deal '''
@@ -471,6 +472,7 @@ class OnesideDolphin(object):
                         self.buy(self.stock_pair[want_buy_stock_index-1], (buy_infos_1, buy_infos_2)[want_buy_stock_index-1])
 
                         self.today_bought_stock = want_buy_stock_index
+                        self.dump_status()
                         break
 
 
