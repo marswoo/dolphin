@@ -15,6 +15,7 @@ class OnesideDolphin(object):
         self.stockid_2 = self.stock_pair[1]
         self.stockdata_1 = None
         self.stockdata_2 = None
+        self.dump_tag = True
         self.today_close_tag = False
         self.expense_each_deal = 20000.0
         self.buy_strategy_category = {'Buy_low':0, 'Buy_high':1}
@@ -203,7 +204,8 @@ class OnesideDolphin(object):
         #log("debug", "if_leave_time_right: %s, %s, %s"%(str(self.minutes_to_closemarket), str(self.if_enter_triggered), str(self.want_sell_index)))
         if self.minutes_to_closemarket <= 7:
             return True
-        if not self.if_enter_triggered:
+        #if not self.if_enter_triggered:
+        if False:
             if self.current_stock_delta[self.want_sell_index] >= 0.025 or self.current_delta_relative_prices[3-self.want_sell_index] >= 0.01:
                 debug_data = []
                 debug_data.append(str(self.current_stock_delta[self.want_sell_index]))
@@ -406,6 +408,13 @@ class OnesideDolphin(object):
             if rt == -1:
                 break
 
+            #每两分钟dump_status
+            if int(self.minutes_to_closemarket) % 2 == 0 and self.dump_tag == True:
+                self.dump_status()
+                self.dump_tag = False
+            elif int(self.minutes_to_closemarket) % 2 != 0:
+                self.dump_tag = True
+
             stockdata_1 = self.stockdata_1
             stockdata_2 = self.stockdata_2
 
@@ -439,7 +448,7 @@ class OnesideDolphin(object):
                 continue
             self.current_delta_relative_prices[2] = round(current_relative_price_id_1 - current_relative_price_id_2, 4)
         
-            log('delta_info', '\t'.join([ self.pairid, self.today_date+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]) ]))
+            log('delta_info', '\t'.join([ self.pairid, self.today_date+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]), str(self.current_stock_delta[self.want_sell_index]) ]))
 
             #判断delta时间是否和当前时间相差超过阈值，如果是，则dump当前指标准备重启
             self.check_dump(self.today_date+' '+stockdata_1['time'], self.today_date+' '+stockdata_2['time'])

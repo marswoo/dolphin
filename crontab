@@ -7,6 +7,8 @@
 
 0 9 * * 1-5 cd /root/framework.online/dolphin && python news_notification.py &> /dev/null
 */1 * * * 1-5 cd /root/framework.online/dolphin && python alert.py >> log/alert.log 2>&1
+*/2 * * * 1-5 cd /root/framework.online/dolphin && python check_datafeeder.py >> /tmp/OnesideDolphin/errorlog 2>&1
+
 5 15 * * 1-5 cd /root/framework.online/dolphin && python catch_view_detail.py &> /dev/null
 #*/5 9 * * 1-5 cd /root/framework.online/dolphin && python get_account_info.py >> log/get_account_info.res 2>&1
 
