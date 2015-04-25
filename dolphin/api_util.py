@@ -48,6 +48,6 @@ def get_datafeeder():
 if __name__ == '__main__':
     #print get_stock_data("sz000157", get_datafeeder())
     #print get_account_info(get_trader())
-    print get_position_info(get_trader())
-    #sell("sz002474", 12.20, 1500, get_trader())
+    #print get_position_info(get_trader())
+    sell("sh600048", 11.32, 1700, get_trader())
     time.sleep(1)

@@ -27,6 +27,8 @@ candidate_stock_pairs = [
     'sz000568_sz000858',
     'sz002279_sz002474',
     'sh600030_sh600837',
+    'sz002315_sh600831',
+    'sz002649_sz300079',
     'sz000333_sz000651',
     'sh601601_sh601628',
     'sz000789_sz002233',
@@ -92,6 +94,8 @@ pairs_names	=	{
 'sh600648_sh600663':"sh600648	sh600663	外高桥	陆家嘴",
 'sh601801_sh601928':"sh601801	sh601928	皖新传媒	凤凰传媒",
 'sh600048_sz000024':"sh600048	sz000024	保利地产	招商地产",
+'sz002315_sh600831':"sz002315   sh600831    焦点科技    广电网络",
+'sz002649_sz300079':"sz002649   sz300079    博彦科技    数码视讯",
 }
 
 ##################################################################
@@ -174,9 +178,9 @@ def disable_store2database():
 
 def if_has_big_news(pairid, today_date):
     reconnect_database(dbconf.dbconf)
-    g_cursor.execute("SELECT tag FROM dolphin_notificationnews WHERE pairid=%s and date=%s", (pairid, today_date))
-    r = g_cursor.fetchone()
-    if r is not None and int(r[0]) == 1:
+    g_cursor.execute("SELECT tag FROM dolphin_notificationnews WHERE pairid=%s and date=%s and tag = 1", (pairid, today_date))
+    r = g_cursor.fetchall()
+    if len(r) > 0 and int(r[0][0]) == 1:
         return True
     else:
         return False
@@ -417,6 +421,6 @@ def init_account(account, pairid):
 if __name__ == '__main__':
     #print get_current_price('sz000089')
     #print get_minutes_to_closemarket('15:01:00')
-    print if_has_big_news("sh600030_sh600837", "2015-01-26")
+    print if_has_big_news("sh600048_sz000024", "2015-04-24")
 
 
