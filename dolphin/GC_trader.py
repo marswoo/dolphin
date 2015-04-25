@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     ## 10 -> 1000Yuan
     print "sell"
-    print trader.sell('sz131810', [(2.0, available_mount*10)])
+    print trader.sell('sz131810', [(1.5, available_mount*10)])
     #trader.buy('sz131810', [(2.0, available_mount*10)])
 
     trader.update_account_info()

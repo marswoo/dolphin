@@ -16,6 +16,7 @@ class OnesideDolphin(object):
         self.stockdata_1 = None
         self.stockdata_2 = None
         self.dump_tag = True
+        self.stop_buy = 0
         self.today_close_tag = False
         self.expense_each_deal = 20000.0
         self.buy_strategy_category = {'Buy_low':0, 'Buy_high':1}
@@ -95,6 +96,7 @@ class OnesideDolphin(object):
             status.append("self.want_sell_stock_enter_price = %s" % str(self.want_sell_stock_enter_price))
             status.append("self.want_sell_stock_amount = %s" % str(self.want_sell_stock_amount))
             status.append("self.volatility = %s" % str(self.volatility))
+            status.append("self.stop_buy = %s" % str(self.stop_buy))
         else:
             status.append("self.today_bought_stock = 0")
             status.append("self.today_buy_price = -1")
@@ -109,6 +111,7 @@ class OnesideDolphin(object):
             status.append("self.want_sell_stock_enter_price = %s" % str(self.today_buy_price))
             status.append("self.want_sell_stock_amount = %s" % str(self.today_bought_amount))
             status.append("self.volatility = %s" % str(self.volatility))
+            status.append("self.stop_buy = 0")
 
         open(self.yesterday_position_file, 'w').write("\n".join(status))
 
@@ -128,6 +131,7 @@ class OnesideDolphin(object):
         status.append("self.want_sell_stock_enter_price = 0") 
         status.append("self.want_sell_stock_amount = 0") 
         status.append("self.volatility = [0,0]") 
+        status.append("self.stop_buy = 0") 
         open(self.yesterday_position_file, 'w').write("\n".join(status))
 
    
@@ -146,6 +150,10 @@ class OnesideDolphin(object):
         self.want_sell_stock_enter_price = eval(data[10].split('=')[1].strip())
         self.want_sell_stock_amount = eval(data[11].split('=')[1].strip())
         self.volatility = eval(data[12].split('=')[1].strip())
+        if len(data) >= 14:
+            self.stop_buy = eval(data[13].split('=')[1].strip())
+        else:
+            self.stop_buy = 0
 
 
     def check_dump(self, time1, time2):
@@ -174,7 +182,8 @@ class OnesideDolphin(object):
     ''' 检查这个pair是否有重大新闻，如有则不进行交易 '''
     def check_big_news(self):
         if if_has_big_news(self.pairid, self.today_date):
-            self.today_bought_stock = -1
+            log("stop_buy_debug", "there's big news " + self.pairid + " " + str(self.today_date))
+            self.stop_buy = 1
 
 
     ''' 判断是否入场 '''
@@ -385,9 +394,8 @@ class OnesideDolphin(object):
 
     ''' run dolphin to a pair of stocks '''
     def run(self):
-        self.check_big_news()
-        #self.get_yesterday_position()
         self.load_status()
+        self.check_big_news()
         error_count = 0
         error_count_all = 0
 
@@ -448,7 +456,8 @@ class OnesideDolphin(object):
                 continue
             self.current_delta_relative_prices[2] = round(current_relative_price_id_1 - current_relative_price_id_2, 4)
         
-            log('delta_info', '\t'.join([ self.pairid, self.today_date+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]), str(self.current_stock_delta[self.want_sell_index]) ]))
+            log('delta_info', '\t'.join([ self.pairid, self.today_date+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]) ]))
+            log('delta_debug', '\t'.join([ self.pairid, self.today_date+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_stock_delta[self.want_sell_index]), str(self.max_delta_of_today[self.want_sell_index]) ]))
 
             #判断delta时间是否和当前时间相差超过阈值，如果是，则dump当前指标准备重启
             self.check_dump(self.today_date+' '+stockdata_1['time'], self.today_date+' '+stockdata_2['time'])
@@ -470,7 +479,7 @@ class OnesideDolphin(object):
                 log("debug", "clear_yesterday_position over")
 
             # 当天尚未交易
-            if self.today_bought_stock == 0:
+            if self.today_bought_stock == 0 and self.stop_buy == 0:
                 for want_buy_stock_index in [1, 2]:
                     if self.if_enter_market(want_buy_stock_index):
                         log('deal_debug', 'delta差价足够大，达到给定阈值，建立头寸；' )
