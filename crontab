@@ -1,3 +1,6 @@
+0 9 * * 1-5 cd /root/framework.online/ && sh kill.sh
+5 9 * * 1-5 cd /root/framework.online/ && sh run.sh
+
 15 9 * * 1-5 curl http://127.0.0.1:8082/dolphin/init/
 30 9 * * 1-5 curl http://127.0.0.1:8082/dolphin/start_all/
 
@@ -12,4 +15,4 @@
 5 15 * * 1-5 cd /root/framework.online/dolphin && python catch_view_detail.py &> /dev/null
 #*/5 9 * * 1-5 cd /root/framework.online/dolphin && python get_account_info.py >> log/get_account_info.res 2>&1
 
-31 9 * * 1-5 cd /root/framework.online/dolphin && python beiyinmei.py &> /dev/null
+#31 9 * * 1-5 cd /root/framework.online/dolphin && python beiyinmei.py &> /dev/null

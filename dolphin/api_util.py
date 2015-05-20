@@ -5,6 +5,7 @@ import time
 from api import datafeeder, trader
 #from pzyctp.stock import datafeeder, trader
 from conf.access_conf import access_conf
+import sys
 
 def get_stock_data(stock_id, t_datafeeder):
     t_datafeeder.subscrib_market_data(stock_id)
@@ -49,5 +50,13 @@ if __name__ == '__main__':
     #print get_stock_data("sz000157", get_datafeeder())
     #print get_account_info(get_trader())
     #print get_position_info(get_trader())
-    sell("sh600048", 11.32, 1700, get_trader())
+    #sell("sz300079", 20.67, 100, get_trader())
+    action = sys.argv[1]
+    stockid = sys.argv[2]
+    price = sys.argv[3]
+    amount = sys.argv[4]
+    if action == "buy":
+        buy(stockid, float(price), int(amount), get_trader())
+    elif action == "sell":
+        sell(stockid, float(price), int(amount), get_trader())
     time.sleep(1)
