@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import smtplib
+import os
 from email.mime.text import MIMEText
 
 class NeteaseMail:
@@ -41,8 +42,9 @@ import re
 import os
 
 if __name__ == '__main__':
+    log = open("/root/framework.online/common_log/news_notification.log." + str(datetime.date.today()), "w")
     stock_pairs = Util.candidate_stock_pairs
-    keywords = ['中报', '季报', '年报', '停牌']
+    keywords = ['中报', '季报', '年报', '停牌', '业绩', '快报', '重组']
 
     mail_content = ''
     today_date = str(datetime.date.today())
@@ -55,40 +57,47 @@ if __name__ == '__main__':
         for stockid in pair.split('_'):
             flag = "0"
             db_content = ''
-            #url = 'http://money.finance.sina.com.cn/corp/view/vCB_AllMemordDetail.php?stockid='+stockid[2:]
-            url = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllNewsStock/symbol/%s.phtml' % stockid
-            try:
-                html = urllib2.urlopen(url).read().decode("gbk").encode("utf8")
-            except:
-                html = urllib2.urlopen(url).read()
-            soup = BeautifulSoup(html)
-            raw_date_str = str(soup.find(id="con02-7").find_all("ul"))
-            date_list = []
-            for i in re.split("[<a|<br>]", raw_date_str):
-                if i.count("2015-") != 0:
-                    date_list.append(i.strip()[8:-11])
+            url1 = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllNewsStock/symbol/%s.phtml' % stockid[2:]
+            url2 = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllBulletin/stockid/%s.phtml' % stockid[2:]
+            for url in [url1, url2]:
+                if url == url1:
+                    continue
+                try:
+                    html = urllib2.urlopen(url).read().decode('gb2312').encode('utf8')
+                except:
+                    html = urllib2.urlopen(url).read()
+                soup = BeautifulSoup(html)
+                raw_date_str = str(soup.find(id="con02-7").find_all("ul"))
+                date_list = []
+                year = str(datetime.date.today().year)
+                for i in re.split("[<a|<br>]", raw_date_str):
+                    if i.count(year + "-") != 0:
+                        date_list.append(i.strip())
 
-            a = soup.find(id="con02-7").find_all('a')
-            index = 0
-            for i in a:
-                index += 1
-                title_text = i.text.encode("utf8")
-                if title_text.count("下一页") != 0 or len(date_list) == 0:
-                    break
-                news_date = date_list.pop(0)
-                mail_content_tmp = stockid + " " + news_date + " " + title_text
-                if news_date in [today_date, tomorrow_date]:
-                    for k in keywords:
-                        if mail_content_tmp.count(k) != 0:
-                            mail_content += (mail_content_tmp + '\n***************************\n')
-                            db_content += (mail_content_tmp + '\n***************************\n')
-                            flag = "1"
-            Util.log('news_info', '\t'.join([ pair, today_date, db_content, str(flag) ]))
+                a = soup.find(id="con02-7").find_all('a')
+                index = 0
+                for i in a:
+                    index += 1
+                    title_text = i.text.encode("utf8")
+                    if title_text.count("下一页") != 0 or len(date_list) == 0:
+                        break
+                    news_date = date_list.pop(0)
+                    mail_content_tmp = stockid + " " + news_date + " " + title_text
+                    print >> log, title_text
+                    if news_date in [today_date, tomorrow_date]:
+                        for k in keywords:
+                            if mail_content_tmp.count(k) != 0:
+                                mail_content += (mail_content_tmp + '\n***************************\n')
+                                db_content += (mail_content_tmp + '\n***************************\n')
+                                flag = "1"
+                Util.log('news_info', '\t'.join([ pair, today_date, db_content, str(flag) ]))
 
-    print mail_content
-    if flag == "1":
-        mail = NeteaseMail()
-        mail.send_mail(self, "woody213@yeah.net,80382133@qq.com", "big news", mail_content)
-        #print os.popen("echo \"%s\" | mail -s \"big news!!\" woody213@yeah.net,80382133@qq.com" % mail_content).read()
+    print >> log, "*/"*20
+    print >> log, mail_content
+    os.system("find /root/framework.online/common_log -mtime +10 | xargs rm -f")
+    #if flag == "1":
+    #    mail = NeteaseMail()
+    #    mail.send_mail(self, "woody213@yeah.net,80382133@qq.com", "big news", mail_content)
+    #    #print os.popen("echo \"%s\" | mail -s \"big news!!\" woody213@yeah.net,80382133@qq.com" % mail_content).read()
 
 
