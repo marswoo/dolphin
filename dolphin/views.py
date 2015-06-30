@@ -205,7 +205,10 @@ def detail(request, pair, date):
     if os.path.exists(stock_metadatas_1_file):
         stock_metadatas_1 = pickle.load(open(stock_metadatas_1_file, "rb"))
     else:
-        stock_metadatas_1 = [ [time.mktime( time.strptime(str(date)+' '+str(d.time), '%Y-%m-%d %H:%M:%S') )*1000, float((d.current_price-d.yesterday_close_price)/d.yesterday_close_price) ] for d in metadata1 ]
+        try:
+            stock_metadatas_1 = [ [time.mktime( time.strptime(str(date)+' '+str(d.time), '%Y-%m-%d %H:%M:%S') )*1000, float((d.current_price-d.yesterday_close_price)/d.yesterday_close_price) ] for d in metadata1 ]
+        except:
+            print >> sys.stderr, format_exc()
         if catch_flag:
             pickle.dump(stock_metadatas_1, open(stock_metadatas_1_file, "wb"))
 

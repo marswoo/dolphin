@@ -6,6 +6,7 @@ from api import datafeeder, trader
 #from pzyctp.stock import datafeeder, trader
 from conf.access_conf import access_conf
 import sys
+from Account import LocalWebServiceAccount
 
 def get_stock_data(stock_id, t_datafeeder):
     t_datafeeder.subscrib_market_data(stock_id)
@@ -28,7 +29,15 @@ def get_account_info(t_trader):
     print "get_account_info"
     t_trader.update_account_info()
     time.sleep(2)
-    return t_trader.get_account_info()
+    info = t_trader.get_account_info()
+    #print info["Available"]
+    return info
+
+def get_today_trades(account):
+    print "get_today_trades"
+    trades = account.get_today_trades()
+    time.sleep(2)
+    return trades
 
 def get_position_info(t_trader):
     print "get_position_info"
@@ -41,6 +50,10 @@ def get_trader():
     time.sleep(2)
     return t_trader
 
+def get_account():
+    account = LocalWebServiceAccount()
+    return account
+
 def get_datafeeder():
     t_datafeeder = datafeeder.DataFeeder(access_conf['datafeeder']['addr'], access_conf['datafeeder']['broker'], access_conf['datafeeder']['account'], access_conf['datafeeder']['passwd'])
     time.sleep(2)
@@ -52,11 +65,18 @@ if __name__ == '__main__':
     #print get_position_info(get_trader())
     #sell("sz300079", 20.67, 100, get_trader())
     action = sys.argv[1]
-    stockid = sys.argv[2]
-    price = sys.argv[3]
-    amount = sys.argv[4]
     if action == "buy":
+        stockid = sys.argv[2]
+        price = sys.argv[3]
+        amount = sys.argv[4]
         buy(stockid, float(price), int(amount), get_trader())
     elif action == "sell":
+        stockid = sys.argv[2]
+        price = sys.argv[3]
+        amount = sys.argv[4]
         sell(stockid, float(price), int(amount), get_trader())
+    elif action == "get_trades":
+        print get_today_trades(get_account())
+    elif action == "get_account_info":
+        print get_account_info(get_trader())
     time.sleep(1)

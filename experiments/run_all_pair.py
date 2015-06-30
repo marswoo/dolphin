@@ -9,6 +9,8 @@ beg = sys.argv[1]
 end = sys.argv[2]
 tag = sys.argv[3]
 
+os.system("rm -rf /tmp/OnesideDolphin/YesterdayPosition_TEST/*")
+
 dir = "result/run_all_pair."+beg.replace("-","") + "-"+ end.replace("-", "") + "." + tag
 if sys.argv.count("f") != 0:
     os.system("rm -rf " + dir)
@@ -20,14 +22,14 @@ os.system("mkdir -p dolphin/log")
 os.system("mkdir -p result/log." + tag)
 
 for pair in pairs:
-    #if pair != "sz002279_sz002474":
+    #if pair != "sz002136_sz002601":
     #    continue
     print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "--- processing %s." % pair
     print >> open(dir + "/" + "exp_"  + pair, "w"), os.popen("python strategy_comparator.py " + pair + " " + beg + " " + end).read()
 
 output = open(dir + "/result", "w")
 output_data = []
-output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}".format("pairid", "date", "test_stra_prof", "org_stra_prof", "offset"))
+output_data.append("{0:20s}\t{1:10s}\t{2:20s}\t{3:20s}\t{4:20s}".format("pairid", "date", "test_stra_prof", "org_stra_prof", "offset"))
 res = [0.0] * 2
 
 for f in os.listdir(dir):

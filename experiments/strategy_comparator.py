@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from time import mktime, localtime, strftime, strptime
+import datetime
 from collections import defaultdict
 
 from dolphin import Account, StockDataFeeder, Util
@@ -12,6 +13,7 @@ import OnesideStrategy as ST
 from OnesideStrategy import Oneside_offline_experiment as EX
 
 from conf.dbconf import dbconf
+import sys
 
 class NoneStrategy:
     pass
@@ -32,7 +34,8 @@ def show_result( pairid, r1, r2, S1, S2 ):
 
 
 def run_strategy( pairid, start_date, end_date, Strategy ):
-    Util.init_logging('Exp_' + str(Strategy).strip("'>").split(".")[-1] + "_" + pairid)
+    #Util.init_logging('Exp_' + str(Strategy).strip("'>").split(".")[-1] + "_" + pairid)
+    strategy_name = str(Strategy).strip("'>").split(".")[-1]
     if Strategy is NoneStrategy:
         return defaultdict(int)
 
@@ -40,11 +43,16 @@ def run_strategy( pairid, start_date, end_date, Strategy ):
 
     result = {}
     today_date = start_date
+
     while today_date <= end_date:
         if not Util.if_close_market_today(today_date):
+            print >> sys.stderr, datetime.datetime.now().time().strftime("%H:%M:%S"), "strategy: " + strategy_name + " date: " + today_date
             data_feeder = StockHistoryMySQLDataFeeder(pairid, today_date)
             account = VirtualAccount()
-            s = Strategy(pairid, data_feeder, account, today_date)
+            log_name = 'Exp_' + str(Strategy).strip("'>").split(".")[-1] + "_" + pairid
+            s = Strategy(pairid, data_feeder, account, today_date, strategy_name = strategy_name, log_name = log_name)
+            #设定为实验模式
+            s.set_exp()
             s.run()
             result[today_date] = s.get_virtual_profit()
         today_date = strftime('%Y-%m-%d', localtime(mktime(strptime(today_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')) + 24*3600 ))
@@ -81,7 +89,8 @@ if __name__ == '__main__':
 
     #S1 = ST.Test_leave_chaseup_sellbuygap
     #S2 = NoneStrategy
-    S1 = ST.Test_leave_20150129
+    #S1 = ST.Test_leave_20150129
+    S1 = ST.Buy_dependon_yest
     #S2 = ST.Oneside_offline_experiment
     S2 = EX
 

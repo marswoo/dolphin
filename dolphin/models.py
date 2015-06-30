@@ -26,7 +26,7 @@ class StockMetaData(models.Model):
     sell3_amount = models.IntegerField()
 
     def __unicode__(self):
-        return '\t'.join([ str(self.stockid), str(self.timestamp), str(self.current_price) ])
+        return '\t'.join([ str(self.stockid), str(self.time), str(self.current_price) ])
 
 class PairDelta(models.Model):
     pairid = models.CharField(max_length=40)

@@ -16,35 +16,47 @@ candidate_stock_pairs = [
     # online
     'sh600216_sz002001',
     'sz002136_sz002601',
-    'sh600209_sz000735',
+    'sh600108_sh601118', #亚盛集团 海南橡胶
     'sh600389_sh600596',
     'sz002441_sz300068',
-    'sh600884_sz002091',
     'sh600597_sh600887',
-    'sh600435_sh600501',
+    'sh600501_sz002025',
     'sh600031_sz000157',
-    'sh600343_sh600879',
     'sz000568_sz000858',
     'sz002279_sz002474',
-    'sh600030_sh600837',
-    'sz002315_sh600831',
-    'sz002649_sz300079',
     'sz000333_sz000651',
     'sh601601_sh601628',
-    'sz000789_sz002233',
-    'sz000877_sh600425', #/天山股份/青松建化
+    'sh600720_sz000789', #祁连山/万年青
     'sz000001_sh601166', #/平安银行/兴业银行
     'sh600011_sh600027', #/华能国际/华电国际
     'sz000758_sh601168', #/中色股份/西部矿业
     'sz000088_sz000507', #/盐 田 港/珠海港   
-    'sh600875_sh601727', #/东方电气/上海电气 
-    'sh600199_sh600702', #/金种子酒/沱牌舍得 
-#   'sh600259_sz000831', #/广晟有色/五矿稀土 
     'sh600026_sh601866', #/中海发展/中海集运 
-    'sh600789_sz002166', #/鲁抗医药/莱茵生物 
-    'sh600648_sh600663', #/外高桥/陆家嘴
+    'sh600639_sh600648', #浦东金桥/外高桥
     'sh601801_sh601928', #/皖新传媒/凤凰传媒
-    'sh600048_sz000024', #/保利地产/招商地产
+    "sh600737_sz000930", #/中粮屯河   /中粮生化   　  注释状态，暂不开启
+    "sh600618_sh600636", #/氯碱化工   /三爱富 　  注释状态，暂不开启
+    "sz000738_sz000768", #/中航动控   /中航飞机   　  注释状态，暂不开启
+    "sh600545_sz002302", #/新疆城建   /西部建设   　  注释状态，暂不开启
+    "sh600089_sh601179", #特变电工 中国西电",   
+#    'sh600789_sz002166', #/鲁抗医药/莱茵生物 
+#    'sh600884_sz002091', #杉杉股份 江苏国泰
+#    'sh600343_sh600879',
+#    'sh600831_sz000665', #广电网络/湖北广电
+#    'sz002649_sz300079', #博彦科技/数码视讯
+#    'sz000877_sh600425', #/天山股份/青松建化
+#    'sh600199_sh600702', #/金种子酒/沱牌舍得 
+#    'sh600048_sz000024', #/保利地产/招商地产
+#   "sh600008_sz000598", #/首创股份   /兴蓉投资   　  注释状态，暂不开启
+#   "sz002083_sz002087", #/孚日股份   /新野纺织   　  注释状态，暂不开启
+#   "sh600354_sz000713", #/敦煌种业   /丰乐种业   　  注释状态，暂不开启
+#   "sh600717_sh600751", #/天津港     /天津海运   　  注释状态，暂不开启
+#   "sh600432_sz000693", #/吉恩镍业   /华泽钴镍   　  注释状态，暂不开启
+#   "sh600261_sz000541", #/阳光照明   /佛山照明   　  注释状态，暂不开启
+]
+
+#   'sh600030_sh600837',
+#   'sh600259_sz000831', #/广晟有色/五矿稀土 
 #   'sh600757_sh601801', #/长江传媒/皖新传媒
 #   'sh600633_sh601928', #/浙报传媒/凤凰传媒
 #   'sh600639_sh600663',    # 浦东金桥 陆家嘴
@@ -61,9 +73,18 @@ candidate_stock_pairs = [
 #   'sz000758_sz000993',    # 稀土
 #   'sh600410_sz002544',
 #   'sz300042_sz300270',
-]
 
 pairs_names	=	{	
+"sh600737_sz000930":"sh600737	sz000930    中粮屯河   中粮生化", 
+"sh600618_sh600636":"sh600618	sh600636    氯碱化工   三爱富", 
+"sz000738_sz000768":"sz000738	sz000768    中航动控   中航飞机", 
+"sh600545_sz002302":"sh600545	sz002302    新疆城建   西部建设", 
+"sh600089_sh601179":"sh600089	sh601179    特变电工 中国西电",  
+'sh600501_sz002025':"sh600501   sz002025    航天晨光 航天电器",
+'sh600108_sh601118':"sh600108   sh601118    亚盛集团 海南橡胶",
+'sh600720_sz000789':"sh600720   sz000789    祁连山 万年青",
+'sh600639_sh600648':"sh600639   sh600648    浦东金桥  外高桥",
+'sh600831_sz000665':"sh600831   sz000665    广电网络 湖北广电",
 'sh600216_sz002001':"sh600216	sz002001	浙江医药	新和成",
 'sz000333_sz000651':"sz000333   sz000651    美的集团    格力电器",
 'sz002136_sz002601':"sz002136	sz002601	安纳达	佰利联",
@@ -191,6 +212,7 @@ def store_to_database(category, message):
     try:
         if category == 'delta_info':
             message = message.replace('None', '0.0')
+        message = message.split("", 1)[1]
         items = tuple(message.split('\t'))
         placeholder = ', '.join(['%s']*len(items))
         if category == 'delta_info':
@@ -212,7 +234,7 @@ def store_to_database(category, message):
                 items = list(items)
                 items[3] = str(float(items[2]) + float(total))
                 items = tuple(items)
-                log("debug", "update dolphin_asset: total(before)=%s, profit=%s, total(after)=%s" % (str(total), str(items[2]), str(items[3])))
+                #log("debug", "update dolphin_asset: total(before)=%s, profit=%s, total(after)=%s" % (str(total), str(items[2]), str(items[3])))
             g_cursor.execute('INSERT INTO dolphin_asset (' + fields + ') VALUES (' + placeholder + ')', items)
                 
         elif category == 'news_info':
@@ -222,37 +244,37 @@ def store_to_database(category, message):
         print >> open("/tmp/OnesideDolphin/errorlog", "a"), traceback.format_exc()
 
 
-''' init logging '''
-def init_logging(pairid):
-    logger_name = pairid
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False # its parent will not print log (especially when client use a 'root' logger)
-
-    fh = logging.FileHandler('dolphin/log/' + logger_name)
-    fh.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)-15s %(levelname)s %(filename)s:%(lineno)s %(message)s")
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    global g_logger
-    g_logger = logger
-
-''' log message '''
-def log(category, message):
-    message = str(message)
-
-    if g_logger is not None:
-        if category.find('info') != -1:
-            g_logger.info(message)
-        elif category.find('warning') != -1:
-            g_logger.warning(message)
-        elif category.find('debug') != -1:
-            g_logger.debug(message)
-        elif category.find('error') != -1:
-            g_logger.error(message)
-    
-    if g_if_store2database:
-        store_to_database(category, message)
+#''' init logging '''
+#def init_logging(pairid):
+#    logger_name = pairid
+#    logger = logging.getLogger(logger_name)
+#    logger.setLevel(logging.DEBUG)
+#    logger.propagate = False # its parent will not print log (especially when client use a 'root' logger)
+#
+#    fh = logging.FileHandler('dolphin/log/' + logger_name)
+#    fh.setLevel(logging.DEBUG)
+#    formatter = logging.Formatter("%(asctime)-15s %(levelname)s %(filename)s:%(lineno)s %(message)s")
+#    fh.setFormatter(formatter)
+#    logger.addHandler(fh)
+#    global g_logger
+#    g_logger = logger
+#
+#''' log message '''
+#def log(category, message):
+#    message = str(message)
+#
+#    if g_logger is not None:
+#        if category.find('info') != -1:
+#            g_logger.info(message)
+#        elif category.find('warning') != -1:
+#            g_logger.warning(message)
+#        elif category.find('debug') != -1:
+#            g_logger.debug(message)
+#        elif category.find('error') != -1:
+#            g_logger.error(message)
+#    
+#    if g_if_store2database:
+#        store_to_database(category, message)
 
 ##################################################################
 ''' Useful functions to wait when market is closed '''
@@ -261,19 +283,19 @@ def if_close_market_today(today_date):
     a = [int(i) for i in today_date.split('-')]
     weekday = datetime.datetime(a[0], a[1], a[2]).weekday()
     if weekday == 5 or weekday == 6:
-        log('close_info', today_date + ' is weekend!')
+        #log('close_info', today_date + ' is weekend!')
         return True
 #    reconnect_database()
     g_cursor.execute("select date from dolphin_marketclosedate where date>=%s", (today_date,))
     close_date_list = g_cursor.fetchall()
     close_date_list = [ str(i[0]) for i in close_date_list ]
     if today_date in close_date_list:
-        log('close_info', today_date + ' is in close date list!')
+        #log('close_info', today_date + ' is in close date list!')
         return True
         
     return False
 
-def wait_for_next_open():
+def wait_for_next_open(log):
     # commit the database before today is over
     try:
         global g_conn
@@ -299,7 +321,7 @@ def wait_for_next_open():
         wait_for_next_open()
 
 
-def wait_for_half_open():
+def wait_for_half_open(log):
     log('wait_info', "****************** wait for half open ******************" )
     now_seconds = time()
     now_time = strftime('%Y-%m-%d %H:%M:%S', localtime(now_seconds))
@@ -329,7 +351,7 @@ def if_need_update_real_deal(pairid):
 '''
     update the asset of the pair in the database according to the deal record
 '''
-def update_asset(pairid, today_date, profit_by_delta):
+def update_asset(pairid, today_date, profit_by_delta, log):
     if not g_if_store2database:
         return
     stockid_1, stockid_2 = get_stockid_by_pairid(pairid)

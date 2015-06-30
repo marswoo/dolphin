@@ -4,6 +4,7 @@
 import smtplib
 import os
 from email.mime.text import MIMEText
+import re
 
 class NeteaseMail:
     def __init__(self):
@@ -44,7 +45,7 @@ import os
 if __name__ == '__main__':
     log = open("/root/framework.online/common_log/news_notification.log." + str(datetime.date.today()), "w")
     stock_pairs = Util.candidate_stock_pairs
-    keywords = ['中报', '季报', '年报', '停牌', '业绩', '快报', '重组']
+    keywords = ['中报', '季报', '年报', '停牌', '业绩', '快报', '重组', '利润']
 
     mail_content = ''
     today_date = str(datetime.date.today())
@@ -54,14 +55,14 @@ if __name__ == '__main__':
 
     print 'Get shock news on ', today_date
     for pair in stock_pairs:
+        #if pair != "sz000333_sz000651":
+        #    continue
         for stockid in pair.split('_'):
             flag = "0"
             db_content = ''
-            url1 = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllNewsStock/symbol/%s.phtml' % stockid[2:]
+            url1 = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllNewsStock/symbol/%s.phtml' % stockid
             url2 = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vCB_AllBulletin/stockid/%s.phtml' % stockid[2:]
             for url in [url1, url2]:
-                if url == url1:
-                    continue
                 try:
                     html = urllib2.urlopen(url).read().decode('gb2312').encode('utf8')
                 except:
@@ -81,8 +82,12 @@ if __name__ == '__main__':
                     title_text = i.text.encode("utf8")
                     if title_text.count("下一页") != 0 or len(date_list) == 0:
                         break
-                    news_date = date_list.pop(0)
+                    try:
+                        news_date = re.compile("\d\d\d\d-\d\d-\d\d").search(date_list.pop(0)).group(0)
+                    except:
+                        continue
                     mail_content_tmp = stockid + " " + news_date + " " + title_text
+                    #print title_text+""+news_date
                     print >> log, title_text
                     if news_date in [today_date, tomorrow_date]:
                         for k in keywords:
@@ -90,6 +95,7 @@ if __name__ == '__main__':
                                 mail_content += (mail_content_tmp + '\n***************************\n')
                                 db_content += (mail_content_tmp + '\n***************************\n')
                                 flag = "1"
+                #print db_content
                 Util.log('news_info', '\t'.join([ pair, today_date, db_content, str(flag) ]))
 
     print >> log, "*/"*20

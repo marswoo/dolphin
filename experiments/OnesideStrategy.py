@@ -3,9 +3,9 @@
 
 from dolphin.OnesideDolphin import OnesideDolphin
 from dolphin.Util import get_minutes_to_closemarket
-from dolphin.Util import log
+#$from dolphin.Util import log
 import os.path
-from time import *
+import time
 
 
 #########################################################################################
@@ -14,13 +14,16 @@ class Oneside_offline_experiment(OnesideDolphin):
     yesterday_position_path = '/tmp/OnesideDolphin/YesterdayPosition_TEST/'
     os.system("mkdir -p " + yesterday_position_path)
 
-    def __init__(self, pairid, data_feeder, account, today_date):
-        OnesideDolphin.__init__(self, pairid, data_feeder, account)
+    def __init__(self, pairid, data_feeder, account, today_date, strategy_name, log_name):
+        OnesideDolphin.__init__(self, pairid, data_feeder, account, log_name)
         self.max_stock_delta = [0.0] * 3
         self.today_date = today_date
-        self.yesterday_position_file = Oneside_offline_experiment.yesterday_position_path + self.pairid
+        self.yesterday_position_file = "/tmp/OnesideDolphin/YesterdayPosition_TEST/" + strategy_name + "_" + self.pairid
+        self.log("debug", "init!!!\n"+self.yesterday_position_file)
         if not os.path.isfile(self.yesterday_position_file):
             self.init_status()
+        self.new_day()
+        self.load_status()
 
     @staticmethod
     def before(pairid):
@@ -36,20 +39,47 @@ class Oneside_offline_experiment(OnesideDolphin):
         tmp_stockdata_2 = self.stockdata_2
         self.stockdata_1 = self.data_feeder.get_data(self.stockid_1)
         self.stockdata_2 = self.data_feeder.get_data(self.stockid_2)
-        if self.stockdata_1 is None or self.stockdata_2 is None:
+
+        if None in (self.stockdata_1, self.stockdata_2):
             self.stockdata_1 = tmp_stockdata_1
             self.stockdata_2 = tmp_stockdata_2
-            self.close_today()
             return False
-        
+       
         # 计算得到当前时间，距离当天收市的时间，分钟表示
         self.minutes_to_closemarket = get_minutes_to_closemarket(self.stockdata_1['time'])
         if self.minutes_to_closemarket == -1:
+            return -1
+        elif self.minutes_to_closemarket == 1 and not self.today_close_tag:
+            self.today_close_tag = True
             self.close_today()
-            return False
-
+ 
         return True
 
+#########################################################################################
+''' 当天结束的收盘价涨跌幅如果相差超过阈值，则在第二天不进行买入操作 '''
+class Buy_dependon_yest(Oneside_offline_experiment):
+    def check_stop_buy(self):
+        if self.minutes_to_closemarket <= 2 and abs(self.current_stock_delta[1] - self.current_stock_delta[2]) > 0.05:
+            self.stop_buy_cnt += 1
+            if self.stop_buy_cnt >= 3:
+                self.log('debug', 'self.stop_buy!!! %s %s' % (str(self.current_stock_delta[1]), str(self.current_stock_delta[2])))
+                self.stop_buy = 1
+            else:
+                self.stop_buy = 0
+ 
+    def close_today(self):
+        # save today's trade record
+        today_trades = self.account.get_today_trades()
+        if len(today_trades) == 0:
+            today_trades = self.account.get_today_trades()
+
+        for trade in today_trades:
+            if trade[2] in (self.stockid_1, self.stockid_2):
+                self.log('realdeal_info', '\t'.join([str(item) for item in trade]))
+
+        # update position information
+        self.update_volatility()
+        self.dump_status(False)
 
 #########################################################################################
 ''' 买高还是买低的策略比较 '''
@@ -90,7 +120,7 @@ class Test_enter_20141219(Oneside_offline_experiment):
             debug_data.append(str(self.current_stock_delta[want_buy_stock_index]))
             debug_data.append(str(self.current_stock_delta[want_buy_stock_index]))
             debug_data.append(str(self.current_delta_relative_prices[want_buy_stock_index]) + " " + str(self.get_delta_threshold_of_entering_market()))
-            log("info_buy", "买入\n" + "\n".join(debug_data))
+            self.log("info_buy", "买入\n" + "\n".join(debug_data))
             return True
         else:
             return False
@@ -102,7 +132,7 @@ class Test_leave_20150129(Oneside_offline_experiment):
     def if_leave_time_right(self):
 #        if self.minutes_to_closemarket > 235:
 #            return False
-        #log("debug", "if_leave_time_right: %s, %s, %s"%(str(self.minutes_to_closemarket), str(self.if_enter_triggered), str(self.want_sell_index)))
+        #self.log("debug", "if_leave_time_right: %s, %s, %s"%(str(self.minutes_to_closemarket), str(self.if_enter_triggered), str(self.want_sell_index)))
         if self.minutes_to_closemarket <= 7:
             return True
         if not self.if_enter_triggered:
@@ -114,7 +144,7 @@ class Test_leave_20150129(Oneside_offline_experiment):
                 debug_data.append(str(self.current_stock_delta[self.want_sell_index]))
                 debug_data.append(str(self.current_delta_relative_prices[3-self.want_sell_index]))
                 debug_data.append(str(self.minutes_to_closemarket))
-                log("info_sell", "卖出trigger\n" + "\n".join(debug_data))
+                self.log("info_sell", "卖出trigger\n" + "\n".join(debug_data))
                 self.if_enter_triggered = 1
             return False
         else:
@@ -128,7 +158,7 @@ class Test_leave_20150129(Oneside_offline_experiment):
                 debug_data.append(str((stock_data['sell_1_price'] - stock_data['buy_1_price']) / stock_data['sell_1_price']))
                 debug_data.append(str(self.current_stock_delta[self.want_sell_index]) + " " + str(self.last_stock_delta[self.want_sell_index]))
                 debug_data.append(str(self.max_delta_of_today[self.want_sell_index] - self.current_stock_delta[self.want_sell_index]))
-                log("info_sell", "卖出\n" + "\n".join(debug_data))
+                self.log("info_sell", "卖出\n" + "\n".join(debug_data))
                 return True
             else:
                 return False

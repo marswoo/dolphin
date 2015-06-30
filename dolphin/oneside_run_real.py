@@ -15,7 +15,7 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     reconnect_database(settings.DATABASES["default"])
-    init_logging( sys.argv[1] )
+#   init_logging( sys.argv[1] )
 
     data_feeder = LocalWebServiceDataFeeder()
     account = LocalWebServiceAccount()
