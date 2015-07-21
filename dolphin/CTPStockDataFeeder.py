@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pzyctp.stock import datafeeder
+from pzyctp.stock_ctp import datafeeder
 import time
 from conf.access_conf import access_conf
 

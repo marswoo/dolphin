@@ -565,6 +565,7 @@ class OnesideDolphin(object):
                         for (buy_price, buy_amount) in buy_info_t:
                             buy_money += buy_price * buy_amount
                         if not self.is_exp and self.money_reserved - buy_money < dolphin_conf.COMMON_CONF["money_reserved"]:
+                            self.log("debug_money_reserved", "stop buy: " + str(self.money_reserved))
                             continue
 
                         self.log('deal_debug', 'delta差价足够大，达到给定阈值，建立头寸；' )

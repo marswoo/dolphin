@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pzyctp.stock import trader
+from pzyctp.stock_ctp import trader
 import time
 from conf.access_conf import access_conf
 
