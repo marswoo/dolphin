@@ -1,7 +1,7 @@
 Install:
 ========
 * run setup.sh
-* export LD_LIBRARY_PATH="/usr/lib/python2.6/site-packages/pzyctp/stock/:$LD_LIBRARY_PATH"
+* export LD_LIBRARY_PATH="/usr/lib/:$LD_LIBRARY_PATH"
 
 **Remember to create two dirs in /tmp before you run pzyctp.**
 * if you use ctp for stock: ("/tmp/CTP_L2data/" and "/tmp/CTP_tradedata/")

@@ -8,12 +8,16 @@ fi
 
 set -eux
 
+LIST="stock"
+
 mkdir pzyctp
 cp __init__.py pzyctp/
-cd stock && make
-cd -
+for d in $LIST
+do
+    cd $d && make
+    cd -
+done
 
-LIST="stock"
 for d in $LIST
 do
 	mkdir pzyctp/$d
