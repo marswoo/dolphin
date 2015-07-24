@@ -525,7 +525,7 @@ class OnesideDolphin(object):
                 continue
             self.current_delta_relative_prices[2] = round(current_relative_price_id_1 - current_relative_price_id_2, 4)
         
-            self.log('delta_info', '\t'.join([ self.pairid, stockdata_1['date']+' '+stockdata_1['time'], str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]) ]))
+            self.log('delta_info', '\t'.join([ self.pairid, stockdata_1['date']+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_delta_relative_prices[1]), str(self.current_delta_relative_prices[2]) ]))
             #self.log('delta_debug', '\t'.join([ self.pairid, stockdata_1['date']+' '+stockdata_1['time'], str(int(self.minutes_to_closemarket)), str(self.current_stock_delta[self.want_sell_index]), str(self.max_delta_of_today[self.want_sell_index]) ]))
 
             #判断delta时间是否和当前时间相差超过阈值，如果是，则dump当前指标准备重启

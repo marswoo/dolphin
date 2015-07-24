@@ -217,6 +217,8 @@ def store_to_database(category, message):
         placeholder = ', '.join(['%s']*len(items))
         if category == 'delta_info':
             fields = 'pairid, timestamp, minutes_to_closemarket, delta1, delta2'
+            #sql = 'INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')' + str(items)
+            #print >> open("/tmp/OnesideDolphin/errorlog", "a"), sql
             g_cursor.execute('INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')', items)
         elif category == 'stock_realdata':
             fields = 'stockid, date, time, current_price, yesterday_close_price, today_open_price, today_highest_price, today_lowest_price, deal_stock_amount, deal_stock_money, buy1_price, buy1_amount, buy2_price, buy2_amount, buy3_price, buy3_amount, sell1_price, sell1_amount, sell2_price, sell2_amount, sell3_price, sell3_amount'
@@ -240,8 +242,11 @@ def store_to_database(category, message):
         elif category == 'news_info':
             fields = 'pairid, date, news, tag'
             g_cursor.execute('INSERT INTO dolphin_notificationnews (' + fields + ') VALUES (' + placeholder + ')', items)
+        g_conn.commit()
     except:
-        print >> open("/tmp/OnesideDolphin/errorlog", "a"), traceback.format_exc()
+        err = traceback.format_exc()
+        print >> sys.stderr, err
+        print >> open("/tmp/OnesideDolphin/errorlog", "a"), err
 
 
 #''' init logging '''

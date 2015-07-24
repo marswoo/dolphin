@@ -10,4 +10,5 @@ COMMON_CONF = {
     "retrive_data_interval" : 4,
     "stock_relative_val_thr" : 0.11,
     "self.base_enter_threshold" : 0.013,
+    "money_reserved" : 150000,
 }
