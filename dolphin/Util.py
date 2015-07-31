@@ -125,6 +125,7 @@ g_logger = None
 g_conn = None
 g_cursor = None
 g_if_store2database = True
+errorlog_file = open("/tmp/OnesideDolphin/errorlog", "a")
 
 
 ##################################################################
@@ -217,9 +218,7 @@ def store_to_database(category, message):
         placeholder = ', '.join(['%s']*len(items))
         if category == 'delta_info':
             fields = 'pairid, timestamp, minutes_to_closemarket, delta1, delta2'
-            #sql = 'INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')' + str(items)
-            #print >> open("/tmp/OnesideDolphin/errorlog", "a"), sql
-            g_cursor.execute('INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')', items)
+            #g_cursor.execute('INSERT INTO dolphin_pairdelta (' + fields + ') VALUES (' + placeholder + ')', items)
         elif category == 'stock_realdata':
             fields = 'stockid, date, time, current_price, yesterday_close_price, today_open_price, today_highest_price, today_lowest_price, deal_stock_amount, deal_stock_money, buy1_price, buy1_amount, buy2_price, buy2_amount, buy3_price, buy3_amount, sell1_price, sell1_amount, sell2_price, sell2_amount, sell3_price, sell3_amount'
             g_cursor.execute('INSERT INTO dolphin_stockmetadata (' + fields + ') VALUES (' + placeholder + ')', items)
@@ -246,7 +245,7 @@ def store_to_database(category, message):
     except:
         err = traceback.format_exc()
         print >> sys.stderr, err
-        print >> open("/tmp/OnesideDolphin/errorlog", "a"), err
+        print >> errorlog_file, err
 
 
 #''' init logging '''
