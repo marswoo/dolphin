@@ -12,7 +12,7 @@ from dolphin.StockDataFeeder import StockHistoryMySQLDataFeeder
 import OnesideStrategy as ST
 from OnesideStrategy import Oneside_offline_experiment as EX
 
-from conf.dbconf import dbconf
+from conf.dbconf_test import dbconf
 import sys
 
 class NoneStrategy:
