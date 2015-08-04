@@ -6,7 +6,7 @@ import math, time, datetime
 import os.path
 import traceback
 import os
-import api_util
+import scripts.api_util as api_util
 import conf.dolphin_conf as dolphin_conf
 
 class OnesideDolphin(object):

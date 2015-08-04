@@ -1,6 +1,6 @@
 dbconf = {
     'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'tf2',
+    'NAME': 'tf2_sample',
     'USER': 'root',
     'PASSWORD': '',
     'HOST': 'localhost',
