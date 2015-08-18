@@ -15,6 +15,8 @@ class OnesideDolphin(object):
             self.init_logging(log_name)
         else:
             self.init_logging(pairid)
+        self.get_stock_data_error_cnt = 0
+        self.get_stock_data_error_flag = True
         self.is_exp = False
         self.money_reserved = 0
         self.trader = None
@@ -439,7 +441,10 @@ class OnesideDolphin(object):
 
         if None in (self.stockdata_1, self.stockdata_2):#可能停牌，可能发生异常
             error_msg = "get_stock_data error! " + self.stockid_1 + "_" + self.stockid_2
-            print os.popen("echo " + error_msg + " | mail -s \"dolphin get_stock_data alert!\" woody213@yeah.net,80382133@qq.com").read()
+            self.get_stock_data_error_cnt += 1
+            if self.get_stock_data_error_cnt > 100 and self.get_stock_data_error_flag:
+                print os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'get_stock_data_error " + self.pairid + "' 'rt'").read()
+                self.get_stock_data_error_flag = False
             return False
             
         return True
@@ -544,6 +549,9 @@ class OnesideDolphin(object):
             self.one_frame_ok = True
 
             if self.want_sell_index != 0 and self.if_leave_time_right():
+                #send email
+                os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'sell_stock: " + self.pairid.split("_")[self.want_sell_index - 1] + "' 'rt'").read()
+
                 self.log('deal_debug', '达到退出条件，clear yesterday position')
                 self.clear_yesterday_position((None, sell_infos_1, sell_infos_2))
                 self.log("debug", "clear_yesterday_position over")
@@ -577,6 +585,9 @@ class OnesideDolphin(object):
 
                         self.today_bought_stock = want_buy_stock_index
                         self.dump_status()
+
+                        #send email
+                        os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'buy_stock: " + self.pairid.split("_")[want_buy_stock_index-1] + "' 'rt'").read()
                         break
 
 

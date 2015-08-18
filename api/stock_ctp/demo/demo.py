@@ -21,6 +21,6 @@ def test_trade():
     time.sleep(5)
 
 if __name__ == '__main__':
-    #test_datafeeder()
-    test_trade()
+    test_datafeeder()
+    #test_trade()
 
