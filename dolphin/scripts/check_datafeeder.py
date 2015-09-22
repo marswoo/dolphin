@@ -36,13 +36,19 @@ if min_2_close != -1 and min_2_close < 241 and min_2_close != 120.5:
             seconds = delta.days*24*3600 + delta.seconds
 
         if seconds > 40:
-            #send email 
-            os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'restart b/c datafeeder' 'rt'").read()
-
             print "warning!!!", seconds, datetime.datetime.now()
-            os.system("curl http://127.0.0.1:8082/dolphin/stop_all/")
-            os.system("curl http://127.0.0.1:8082/dolphin/init/")
-            os.system("curl http://127.0.0.1:8082/dolphin/start_all/")
+            if not os.path.exists("/tmp/check_datafeeder.flag"):
+                #send email 
+                os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'restart b/c datafeeder' 'rt'").read()
+                os.system("touch /tmp/check_datafeeder.flag")
+                os.system("cd /root/framework.online && sh kill.sh && sh run.sh")
+                time.sleep(1)
+                os.system("curl http://127.0.0.1:8082/dolphin/init/")
+                time.sleep(20)
+                rt = os.system("curl http://127.0.0.1:8082/dolphin/start_all/")
+                if rt != 0:
+                    os.system("curl http://127.0.0.1:8082/dolphin/start_all/")
+                os.system("rm -f /tmp/check_datafeeder.flag")
 
     g_cur.close()
     g_conn.close()

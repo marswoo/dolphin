@@ -549,8 +549,9 @@ class OnesideDolphin(object):
             self.one_frame_ok = True
 
             if self.want_sell_index != 0 and self.if_leave_time_right():
-                #send email
-                os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'sell_stock: " + self.pairid.split("_")[self.want_sell_index - 1] + "' 'rt'").read()
+                if not self.exp:
+                    #send email
+                    os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'sell_stock: " + self.pairid.split("_")[self.want_sell_index - 1] + "' 'rt'").read()
 
                 self.log('deal_debug', '达到退出条件，clear yesterday position')
                 self.clear_yesterday_position((None, sell_infos_1, sell_infos_2))
@@ -566,15 +567,18 @@ class OnesideDolphin(object):
                 for want_buy_stock_index in [1, 2]:
                     if self.if_enter_market(want_buy_stock_index):
                         if not self.is_exp:
-                            self.update_money_reserved()
+                            #self.update_money_reserved()
+                            #send email
+                            os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'buy_stock: " + self.pairid.split("_")[want_buy_stock_index-1] + "' 'rt'").read()
+
                         #检查是否超过预留资金限额
                         buy_money = 0.0
                         buy_info_t = (buy_infos_1, buy_infos_2)[want_buy_stock_index-1]
                         for (buy_price, buy_amount) in buy_info_t:
                             buy_money += buy_price * buy_amount
-                        if not self.is_exp and self.money_reserved - buy_money < dolphin_conf.COMMON_CONF["money_reserved"]:
-                            self.log("debug_money_reserved", "stop buy: " + str(self.money_reserved))
-                            continue
+                        #if not self.is_exp and self.money_reserved - buy_money < dolphin_conf.COMMON_CONF["money_reserved"]:
+                        #    self.log("debug_money_reserved", "stop buy: " + str(self.money_reserved))
+                        #    continue
 
                         self.log('deal_debug', 'delta差价足够大，达到给定阈值，建立头寸；' )
                         self.delta_relative_price_when_entering_market = self.current_delta_relative_prices[want_buy_stock_index]
@@ -586,8 +590,6 @@ class OnesideDolphin(object):
                         self.today_bought_stock = want_buy_stock_index
                         self.dump_status()
 
-                        #send email
-                        os.popen("cd /root/mail_notify/src && python mail_simple.py 'woody213@yeah.net;80382133@qq.com' 'buy_stock: " + self.pairid.split("_")[want_buy_stock_index-1] + "' 'rt'").read()
                         break
 
 
