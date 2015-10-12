@@ -20,7 +20,7 @@ public:
     {
     }
 
-    virtual void update(const string& stock_data);
+    void update(const string& stock_data);
 
     string get_stock_id()
     {

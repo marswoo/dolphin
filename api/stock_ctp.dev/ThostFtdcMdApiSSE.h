@@ -76,7 +76,7 @@ public:
 	///@return 创建出的UserApi
 	///modify for udp marketdata
 	static CZQThostFtdcMdApi *CreateFtdcMdApi(const char *pszFlowPath = "", const bool bIsUsingUdp=false);
-	
+
 	///删除接口对象本身
 	///@remark 不再使用本接口对象时,调用该函数删除接口对象
 	virtual void Release() = 0;

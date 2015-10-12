@@ -114,5 +114,10 @@ void DataFeeder::notify(Strategy* stra, const string& stock_data)
 
 int main()
 {
+    Strategy* stra1 = new Strategy("sh600216");
+    Strategy* stra2 = new Strategy("sz002001");
+    DataFeeder* df = new DataFeeder("tcp://180.166.11.40:41213", "2011", "20000479", "154097");
+    //df->register_stock_data(stra1);
+    //df->register_stock_data(stra2); 
     return 0;
 }

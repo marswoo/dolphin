@@ -12,7 +12,8 @@ using namespace std;
 class DataFeeder : public CZQThostFtdcMdSpi
 {
 public:
-    DataFeeder(string front_address, string brokerID, string userID, string passwd){
+    DataFeeder(string front_address, string brokerID, string userID, string passwd)
+    {
         this->front_address = front_address;
         this->brokerID = brokerID;
         this->userID = userID;
@@ -25,7 +26,8 @@ public:
         this->ExchangeIDDict_Reverse["SZE"] = "sz";
     }
 
-    ~DataFeeder(){
+    ~DataFeeder()
+    {
         this->m_pMdApi->Release();
         for (map<string, Strategy* >::iterator iter = strategies.begin(); iter != strategies.end(); ++iter)
         {

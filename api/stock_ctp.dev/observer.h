@@ -18,7 +18,9 @@ public:
     {
     }
 
-    virtual void update(const string& data) const = 0;
+    void update(const string& data)
+    {
+    }
 };
 
 #endif /* end of include guard: _OBSERVER_H__ */
