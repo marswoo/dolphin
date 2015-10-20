@@ -27,8 +27,8 @@ void DataFeeder::OnRspUserLogin(CZQThostFtdcRspUserLoginField *pRspUserLogin, CZ
 {
     if (pRspInfo->ErrorID == 0)
     {
-        cout << "Login Success!" << endl;
-        cout << "OnRspUserLogin:\t" << "ReturnCode=[" << pRspInfo->ErrorID << "], Msg=[" << pRspInfo->ErrorMsg << "]" << endl;
+        cout << "--- Login Success!" << endl;
+        cout << "--- OnRspUserLogin:\t" << "ReturnCode=[" << pRspInfo->ErrorID << "], Msg=[" << pRspInfo->ErrorMsg << "]" << endl;
     }
     else
     {
@@ -102,7 +102,7 @@ void DataFeeder::un_register_stock_data(Strategy* stra)
     }
 	else
     {
-		cout << ">>> Success to un_subscribe " << ExchangeID << ":" << InstrumentID<< endl;
+		cout << "--- Success to un_subscribe " << ExchangeID << ":" << InstrumentID<< endl;
     }
 }
 
@@ -117,7 +117,8 @@ int main()
     Strategy* stra1 = new Strategy("sh600216");
     Strategy* stra2 = new Strategy("sz002001");
     DataFeeder* df = new DataFeeder("tcp://180.166.11.40:41213", "2011", "20000479", "154097");
-    //df->register_stock_data(stra1);
-    //df->register_stock_data(stra2); 
+    sleep(1);
+    df->register_stock_data(stra1);
+    df->register_stock_data(stra2); 
     return 0;
 }

@@ -3,16 +3,21 @@
 
 #include <string>
 #include <map>
+#include <unistd.h>
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
 #include "strategy.h"
+#include "trader.h"
 
 using namespace std;
 
 class DataFeeder : public CZQThostFtdcMdSpi
 {
 public:
-    DataFeeder(string front_address, string brokerID, string userID, string passwd)
+    DataFeeder(const string& front_address, 
+               const string& brokerID, 
+               const string& userID, 
+               const string& passwd)
     {
         this->front_address = front_address;
         this->brokerID = brokerID;
@@ -24,6 +29,7 @@ public:
         this->ExchangeIDDict["sz"] = "SZE";
         this->ExchangeIDDict_Reverse["SSE"] = "sh";
         this->ExchangeIDDict_Reverse["SZE"] = "sz";
+        this->trader = new Trader(front_address, brokerID, userID, passwd);
     }
 
     ~DataFeeder()
@@ -33,6 +39,7 @@ public:
         {
             delete iter->second;
         }
+        delete trader;
     }
 
 	void register_stock_data(Strategy* stra);
@@ -41,6 +48,7 @@ public:
 
 private:
     CZQThostFtdcMdApi *m_pMdApi;
+    Trader *trader;
 
     string brokerID;
     string userID;

@@ -10,7 +10,7 @@ void Trader::init()
 {
 	m_pTradeApi->RegisterSpi(this);
 	m_pTradeApi->RegisterFront(const_cast<char*>(this->front_address.c_str()));
-	// 使客户端开始与后台服务建立连接
+	// client connect server
 	m_pTradeApi->Init();
 }
 
@@ -22,22 +22,30 @@ void Trader::OnFrontConnected()
 	strcpy(reqUserLogin.UserID, this->userID.c_str());
 	strcpy(reqUserLogin.Password, this->passwd.c_str());
 	int rt = m_pTradeApi->ReqUserLogin(&reqUserLogin, ++m_sRequestID);
-    if (0 != rt){
-		cerr << "------>>>>>> ErrorInfo: ReqUserLogin error." << endl;
+    if (0 != rt)
+    {
+		cerr << ">>> ErrorInfo: ReqUserLogin Error." << endl;
     }
 }
 
 void Trader::OnRspUserLogin(CZQThostFtdcRspUserLoginField *pRspUserLogin, CZQThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	cerr << "--->>> OnRspUserLogin" << endl;
-	IsErrorRspInfo(pRspInfo);
+	bool rt = IsErrorRspInfo(pRspInfo);
+    if (true == rt){
+        cerr << ">>> IsErrorRspInfo" << endl;
+    }
 }
 
 bool Trader::IsErrorRspInfo(CZQThostFtdcRspInfoField *pRspInfo)
 {
 	bool bResult = ((pRspInfo) && (pRspInfo->ErrorID != 0));
-	if (bResult){
-		cerr << "------>>>>>> ErrorID=" << pRspInfo->ErrorID << ", ErrorMsg=" << pRspInfo->ErrorMsg << endl;
+	if (bResult)
+    {
+		cerr << ">>> ErrorID=" 
+             << pRspInfo->ErrorID 
+             << ", ErrorMsg=" 
+             << pRspInfo->ErrorMsg 
+             << endl;
 		this->error_msg = pRspInfo->ErrorMsg;
 	}
 	return bResult;
@@ -77,10 +85,6 @@ void Trader::trade(string stockID, string exchangeID, string limit_price, int am
 	req.ContingentCondition = THOST_FTDC_CC_Immediately;
 	req.ForceCloseReason = THOST_FTDC_FCC_NotForceClose;
 	
-//	req.CombOffsetFlag[0]=THOST_FTDC_OF_Open;
-//	req.CombHedgeFlag[0]=THOST_FTDC_HF_Speculation;
-//	req.MinVolume=1;
-//	req.IsAutoSuspend = 0;
 	req.UserForceClose = 0;
 	req.RequestID = ++m_sRequestID;
 	
@@ -88,32 +92,44 @@ void Trader::trade(string stockID, string exchangeID, string limit_price, int am
 }
 
 void Trader::OnRspOrderInsert(CZQThostFtdcInputOrderField *pInputOrder,CZQThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
-	// 输出报单录入结果
-	cout << "--->>> OnRspOrderInsert" << endl;
-	IsErrorRspInfo(pRspInfo);
+	cout << "--- OnRspOrderInsert" << endl;
+	bool rt = IsErrorRspInfo(pRspInfo);
+    if (true == rt){
+        cerr << ">>> IsErrorRspInfo Error!" << endl;
+    }
 }
 
 void Trader::OnRtnTrade(CZQThostFtdcTradeField *pTrade)
 {
-	cout << "--->>> Trade notification: \n" << pTrade->InstrumentID << '\t' << pTrade->Direction << '\t' << pTrade->Price << '\t' << pTrade->Volume << '\t' << pTrade->TradeDate << ' ' << pTrade->TradeTime << endl;
+	cout << "--- Trade notification: \n" 
+         << pTrade->InstrumentID << '\t' 
+         << pTrade->Direction << '\t' 
+         << pTrade->Price << '\t' 
+         << pTrade->Volume << '\t' 
+         << pTrade->TradeDate << '\t' 
+         << pTrade->TradeTime << endl;
 }
 
 void Trader::OnRtnOrder(CZQThostFtdcOrderField *pOrder)
 {
-	cout << "--->>> Order Return notification: \n" << pOrder->InstrumentID << '\t' << pOrder->LimitPrice << '\t' << pOrder->VolumeTraded << endl;
+	cout << "--- Order Return notification: \n" 
+         << pOrder->InstrumentID << '\t' 
+         << pOrder->LimitPrice << '\t' 
+         << pOrder->VolumeTraded << endl;
 }
 
 // 针对用户请求的出错通知
 void Trader::OnRspError(CZQThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	cerr << "--->>> OnRspError" << endl;
-	IsErrorRspInfo(pRspInfo);
+	bool rt = IsErrorRspInfo(pRspInfo);
+    if (true == rt){
+        cerr << ">>> OnRspError Error!" << endl;
+    }
 }
 
 void Trader::update_position_info()
 {
 	position_info.clear();
-
 	CZQThostFtdcQryInvestorPositionField query;
 	memset(&query, 0, sizeof(query));
 	strcpy(query.BrokerID, this->brokerID.c_str());
@@ -143,7 +159,7 @@ void Trader::update_account_info()
 	strcpy(query.InvestorID, this->userID.c_str());
 	bool rt = m_pTradeApi->ReqQryTradingAccount(&query, ++m_sRequestID);
     if (0 != rt){
-		cerr << "------>>>>>> ErrorInfo: ReqQryTradingAccount error." << endl;
+		cerr << ">>> ErrorInfo: ReqQryTradingAccount Error." << endl;
     }
 }
 
@@ -163,17 +179,15 @@ void Trader::OnRspQryTradingAccount(CZQThostFtdcTradingAccountField *pTradingAcc
 		this->account_info["Reserve"] = pTradingAccount->Reserve;
 		this->account_info["Credit"] = pTradingAccount->Credit;
 	}else{
-		cerr << "------>>>>>> ErrorInfo: pTradingAccount is NULL." << endl;
+		cerr << ">>> ErrorInfo: pTradingAccount is NULL." << endl;
     }
 }
 
 void Trader::update_trade_records()
 {
 	trade_records.clear();
-
 	CZQThostFtdcQryTradeField query;
 	memset(&query, 0, sizeof(query));
-
 	strcpy(query.BrokerID, this->brokerID.c_str());
 	strcpy(query.InvestorID, this->userID.c_str());
 	m_pTradeApi->ReqQryTrade(&query, ++m_sRequestID);
@@ -189,8 +203,19 @@ void Trader::OnRspQryTrade(CZQThostFtdcTradeField *pTrade, CZQThostFtdcRspInfoFi
 	if( pTrade )
 	{
 		ostringstream oss;
-		oss << pTrade->TradeDate << ' ' << pTrade->TradeTime << ' ' << pTrade->Direction << ' ' << ExchangeIDDict_Reverse[pTrade->ExchangeID] << pTrade->InstrumentID << ' ' << pTrade->Price << ' ' << pTrade->Volume;
+		oss << pTrade->TradeDate << '\t' 
+            << pTrade->TradeTime << '\t' 
+            << pTrade->Direction << '\t' 
+            << ExchangeIDDict_Reverse[pTrade->ExchangeID] 
+            << pTrade->InstrumentID << '\t' 
+            << pTrade->Price << '\t' 
+            << pTrade->Volume;
 		this->trade_records.push_back( oss.str() );
 	}
 }
 
+int main(){
+
+    Trader* df = new Trader("tcp://180.166.11.40:41213", "2011", "20000479", "154097");
+    return 0;
+}
