@@ -8,6 +8,7 @@
 #include "ThostFtdcUserApiStructSSE.h"
 #include "strategy.h"
 #include "trader.h"
+#include "util.h"
 
 using namespace std;
 
@@ -19,6 +20,8 @@ public:
                const string& userID, 
                const string& passwd)
     {
+        this->trader = new Trader("tcp://180.166.11.40:41205", "2011", "20000479", "154097");
+        sleep(1);
         this->front_address = front_address;
         this->brokerID = brokerID;
         this->userID = userID;
@@ -29,7 +32,6 @@ public:
         this->ExchangeIDDict["sz"] = "SZE";
         this->ExchangeIDDict_Reverse["SSE"] = "sh";
         this->ExchangeIDDict_Reverse["SZE"] = "sz";
-        this->trader = new Trader(front_address, brokerID, userID, passwd);
     }
 
     ~DataFeeder()
@@ -45,10 +47,12 @@ public:
 	void register_stock_data(Strategy* stra);
 	void un_register_stock_data(Strategy* stra);
     void notify(Strategy* stra, const string& stock_data);
+    void buy(string stockid, string limit_price, int amount);
 
 private:
     CZQThostFtdcMdApi *m_pMdApi;
     Trader *trader;
+    Util util;
 
     string brokerID;
     string userID;

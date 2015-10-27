@@ -41,7 +41,7 @@ bool Trader::IsErrorRspInfo(CZQThostFtdcRspInfoField *pRspInfo)
 	bool bResult = ((pRspInfo) && (pRspInfo->ErrorID != 0));
 	if (bResult)
     {
-		cerr << ">>> ErrorID=" 
+		cerr << ">>> TraderErrorID=" 
              << pRspInfo->ErrorID 
              << ", ErrorMsg=" 
              << pRspInfo->ErrorMsg 
@@ -212,10 +212,4 @@ void Trader::OnRspQryTrade(CZQThostFtdcTradeField *pTrade, CZQThostFtdcRspInfoFi
             << pTrade->Volume;
 		this->trade_records.push_back( oss.str() );
 	}
-}
-
-int main(){
-
-    Trader* df = new Trader("tcp://180.166.11.40:41213", "2011", "20000479", "154097");
-    return 0;
 }

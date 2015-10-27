@@ -32,7 +32,7 @@ void DataFeeder::OnRspUserLogin(CZQThostFtdcRspUserLoginField *pRspUserLogin, CZ
     }
     else
     {
-        cerr << "Login Error!" << endl;
+        cerr << "Datafeeder Login Error!" << endl;
         cerr << "OnRspUserLogin:\t" << "ReturnCode=[" << pRspInfo->ErrorID << "], Msg=[" << pRspInfo->ErrorMsg << "]" << endl;
     }
 }
@@ -79,7 +79,7 @@ void DataFeeder::register_stock_data(Strategy* stra)
         else
         {
             this->strategies[stockid] = stra;
-            cerr << ">>> Success to subscribe " << ExchangeID << ":" << InstrumentID<< endl;
+            cout << "--- Success to subscribe " << ExchangeID << ":" << InstrumentID<< endl;
         }
     }
 }
@@ -112,6 +112,11 @@ void DataFeeder::notify(Strategy* stra, const string& stock_data)
     stra->update(stock_data);
 }
 
+void DataFeeder::buy(string stockid, string limit_price, int amount)
+{
+    this->trader->buy(stockid, limit_price, amount);
+}
+
 int main()
 {
     Strategy* stra1 = new Strategy("sh600216");
@@ -120,5 +125,10 @@ int main()
     sleep(1);
     df->register_stock_data(stra1);
     df->register_stock_data(stra2); 
+    df->buy("sh600216", "100", 200);
+
+    while(true){
+        sleep(10);
+    }
     return 0;
 }
