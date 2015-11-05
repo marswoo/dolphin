@@ -6,9 +6,10 @@
 #include <unistd.h>
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
-#include "strategy.h"
+#include "strategy_pair.h"
 #include "trader.h"
 #include "util.h"
+#include "observer.h"
 
 using namespace std;
 
@@ -37,21 +38,19 @@ public:
     ~DataFeeder()
     {
         this->m_pMdApi->Release();
-        for (map<string, Strategy* >::iterator iter = strategies.begin(); iter != strategies.end(); ++iter)
-        {
-            delete iter->second;
-        }
         delete trader;
     }
 
-	void register_stock_data(Strategy* stra);
-	void un_register_stock_data(Strategy* stra);
-    void notify(Strategy* stra, const string& stock_data);
+	void register_stock_data(const string& stockid, Observer* stra);
+	void un_register_stock_data(const string& stockid, Observer* stra);
+    void notify(const string& stockid, const string& stock_data);
     void buy(string stockid, string limit_price, int amount);
+    void display_status();
+
+    Trader *trader;
 
 private:
     CZQThostFtdcMdApi *m_pMdApi;
-    Trader *trader;
     Util util;
 
     string brokerID;
@@ -61,7 +60,7 @@ private:
 
     map<string, string> ExchangeIDDict;
     map<string, string> ExchangeIDDict_Reverse;
-    map<string, Strategy* > strategies;
+    map<string, Observer* > strategies;
 
 	void init();
 	void OnFrontConnected();

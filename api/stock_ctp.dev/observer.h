@@ -2,6 +2,7 @@
 #define _OBSERVER_H__
 
 #include <string>
+#include "trader.h"
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
 
@@ -18,7 +19,7 @@ public:
     {
     }
 
-    void update(const string& data)
+    virtual void update(const string& data, Trader* trader)
     {
     }
 };

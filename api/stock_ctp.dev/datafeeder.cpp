@@ -32,8 +32,8 @@ void DataFeeder::OnRspUserLogin(CZQThostFtdcRspUserLoginField *pRspUserLogin, CZ
     }
     else
     {
-        cerr << "Datafeeder Login Error!" << endl;
-        cerr << "OnRspUserLogin:\t" << "ReturnCode=[" << pRspInfo->ErrorID << "], Msg=[" << pRspInfo->ErrorMsg << "]" << endl;
+        cerr << ">>> Datafeeder Login Error!" << endl;
+        cerr << ">>> OnRspUserLogin:\t" << "ReturnCode=[" << pRspInfo->ErrorID << "], Msg=[" << pRspInfo->ErrorMsg << "]" << endl;
     }
 }
 
@@ -54,14 +54,12 @@ void DataFeeder::OnRtnDepthMarketData(CZQThostFtdcDepthMarketDataField *pDepthMa
         << p->AskVolume1 << ',' << p->AskPrice2 << ',' << p->AskVolume2 << ',' 
         << p->AskPrice3 << ',' << p->AskVolume3 << ',';
 	
-    Strategy* stra = this->strategies[stockid];
-    this->notify(stra, oss.str());
+    this->notify(stockid, oss.str());
 }
 
 //register a listener
-void DataFeeder::register_stock_data(Strategy* stra)
+void DataFeeder::register_stock_data(const string& stockid, Observer* stra)
 {
-    string stockid = stra->get_stock_id();
 	std::string InstrumentID = stockid.substr(2);
 	std::string ExchangeID = this->ExchangeIDDict[ stockid.substr(0,2) ];
 	char* id = const_cast<char*>(InstrumentID.c_str());
@@ -72,44 +70,36 @@ void DataFeeder::register_stock_data(Strategy* stra)
     }
 	else
     {
-        if (0 != this->strategies.count(stockid))
-        {
-            delete this->strategies[stockid];
-        } 
-        else
-        {
-            this->strategies[stockid] = stra;
-            cout << "--- Success to subscribe " << ExchangeID << ":" << InstrumentID<< endl;
-        }
+        this->strategies[stockid] = stra;
+        cout << "--- Success to subscribe " << ExchangeID << ":" << InstrumentID<< endl;
     }
 }
 
 //unregister a listener
-void DataFeeder::un_register_stock_data(Strategy* stra)
+void DataFeeder::un_register_stock_data(const string& stockid, Observer* stra)
 {
-    string stockid = stra->get_stock_id();
 	std::string InstrumentID = stockid.substr(2);
 	std::string ExchangeID = this->ExchangeIDDict[ stockid.substr(0,2) ];
 	char* id = const_cast<char*>(InstrumentID.c_str());
 	int result = m_pMdApi->UnSubscribeMarketData( &id, 1, const_cast<char*>(ExchangeID.c_str()) );
 	if( result != 0)
     {
-        if (0 != this->strategies.count(stockid))
-        {
-            delete this->strategies[stockid];
-        } 
 		cerr << ">>> Failed to un_subscribe " << ExchangeID << ":" << InstrumentID<< endl;
     }
 	else
     {
+        if (strategies.count(stockid) != 0)
+        {
+            delete strategies[stockid];
+        }
 		cout << "--- Success to un_subscribe " << ExchangeID << ":" << InstrumentID<< endl;
     }
 }
 
 //notiry listener
-void DataFeeder::notify(Strategy* stra, const string& stock_data)
+void DataFeeder::notify(const string& stockid, const string& stock_data)
 {
-    stra->update(stock_data);
+    strategies[stockid]->update(stock_data, trader);
 }
 
 void DataFeeder::buy(string stockid, string limit_price, int amount)
@@ -117,18 +107,34 @@ void DataFeeder::buy(string stockid, string limit_price, int amount)
     this->trader->buy(stockid, limit_price, amount);
 }
 
+
+void DataFeeder::display_status()
+{
+    cout << "Observers:" << endl;
+    for (map<string, Observer* >::iterator iter = strategies.begin();
+            iter != strategies.end();
+            ++iter)
+    {
+        cout << iter -> first << endl;
+        cout << iter -> second << endl;
+    }
+}
+
 int main()
 {
-    Strategy* stra1 = new Strategy("sh600216");
-    Strategy* stra2 = new Strategy("sz002001");
+    StrategyPair* stra1 = new StrategyPair("sh600031_sz000157");
+    StrategyPair* stra2 = new StrategyPair("sz002001_sh600216");
     DataFeeder* df = new DataFeeder("tcp://180.166.11.40:41213", "2011", "20000479", "154097");
     sleep(1);
-    df->register_stock_data(stra1);
-    df->register_stock_data(stra2); 
+    df->register_stock_data(stra1->get_stock_id(0), stra1);
+    df->register_stock_data(stra1->get_stock_id(1), stra1);
+    df->register_stock_data(stra2->get_stock_id(0), stra2);
+    df->register_stock_data(stra2->get_stock_id(1), stra2);
+    //df->display_status();
     df->buy("sh600216", "100", 200);
 
     while(true){
-        sleep(10);
+        sleep(1);
     }
     return 0;
 }

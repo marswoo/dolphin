@@ -2,6 +2,7 @@
 #define _UTIL_H__
 
 #include <string>
+#include <vector>
 #include <time.h>
 
 using namespace std;
@@ -27,6 +28,7 @@ public:
     float get_minutes_to_closemarket(time_t now);
     bool if_close_market_today(time_t now);
     void wait_for_half_open(time_t now);
+    static void split(const string& raw_string, const string& sep, vector<string>& output);
 
 private:
     time_t open_time_s;

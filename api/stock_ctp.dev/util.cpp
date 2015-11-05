@@ -62,6 +62,28 @@ void Util::wait_for_half_open(time_t now)
     }
 }
 
+void Util::split(const string& raw_string, const string& sep, vector<string>& output)
+{
+    string substring;
+    string::size_type start = 0, index = 0;
+    output.clear();
+
+    do{
+        index = raw_string.find_first_of(sep, start);
+        if (index != string::npos)
+        {
+            substring = raw_string.substr(start, index - start);
+            output.push_back(substring);
+            start = raw_string.find_first_not_of(sep, index);
+            if (start == string::npos) return;
+        }
+    }while(index != string::npos);
+
+    //the last token
+    substring = raw_string.substr(start);
+    output.push_back(substring);
+}
+
 //int main()
 //{
 //    //http://blog.csdn.net/love_gaohz/article/details/6637625
