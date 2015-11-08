@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include <cstdio>
 
 using namespace std;
 
@@ -25,17 +26,23 @@ public:
         time_t half_close_time_t = mktime(&half_close_time);
         time_t close_time_s = mktime(&close_time);
     }
+
     float get_minutes_to_closemarket(time_t now);
+
     bool if_close_market_today(time_t now);
+
     void wait_for_half_open(time_t now);
+
     static void split(const string& raw_string, const string& sep, vector<string>& output);
+
+public:
+    string dtostring(double d);
 
 private:
     time_t open_time_s;
     time_t half_open_time_s;
     time_t half_close_time_t;
     time_t close_time_s;
-
 };
 
 #endif /* end of include guard: _UTIL_H__ */

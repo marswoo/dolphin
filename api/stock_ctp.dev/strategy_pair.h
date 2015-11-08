@@ -11,6 +11,7 @@
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
 
+#include "datafeeder.h"
 #include "observer.h"
 #include "trader.h"
 #include "util.h"
@@ -20,8 +21,9 @@ using namespace std;
 class StrategyPair : public Observer
 {
 public:
-    StrategyPair(const string& stock_pair)
+    StrategyPair(const string& stock_pair, DataFeeder* df)
     {
+        this->df = df;
         this->stock_pair = stock_pair;
         vector<string> stockids;
         Util::split(stock_pair, "_", stockids);
@@ -47,7 +49,11 @@ public:
         minutes_to_closemarket = 241;
         expense_each_deal = 20000.0;
         if_enter_triggered = false;
+        stop_buy_flag = false;
+        want_sell_stock_enter_price = -1.0;
         want_sell_stock_amount = 0;
+        want_sell_index = -1;
+        base_enter_threshold = 0.013;
 
         mean_buy_price.push_back(0);
         mean_buy_price.push_back(0);
@@ -79,6 +85,7 @@ public:
 
 private:
     Util util;
+    DataFeeder* df;
 
     map<string, map<string, float> > stock_data;
 
@@ -104,22 +111,32 @@ private:
     vector<pair<float, int> >* sell_info2;
 
     float today_buy_price;
+    float want_sell_stock_enter_price;
     float profit;
     float minutes_to_closemarket;
     float expense_each_deal;
+    float base_enter_threshold;
 
     int today_buy_amout;
     int want_sell_stock_amount;
+    int want_sell_index;
 
     bool if_enter_triggered;
+    bool stop_buy_flag;
 
     string want_sell_stockid;
 
-
 private:
-    bool if_enter_market();
+    float get_delta_threshold_of_entering_market();
+
+    bool if_enter_market(int stock_index);
+    bool if_leave_time_right();
+
     void run();
     void close_today();
+    void clear_yesterday_position();
+    void trigger_buy(int stock_id);
+    void check_stop_buy();
 
 private:
     bool check_and_parse(vector<string>& tmp_v, map<string, map<string, float> > &stock_data);

@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
-#include "strategy_pair.h"
 #include "trader.h"
 #include "util.h"
 #include "observer.h"
@@ -45,6 +44,7 @@ public:
 	void un_register_stock_data(const string& stockid, Observer* stra);
     void notify(const string& stockid, const string& stock_data);
     void buy(string stockid, string limit_price, int amount);
+    void sell(string stockid, string limit_price, int amount);
     void display_status();
 
     Trader *trader;

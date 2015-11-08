@@ -84,6 +84,13 @@ void Util::split(const string& raw_string, const string& sep, vector<string>& ou
     output.push_back(substring);
 }
 
+string Util::dtostring(double input)
+{
+    char buffer[1024];
+    sprintf(buffer, "%f\0", input);
+    return string(buffer);
+}
+
 //int main()
 //{
 //    //http://blog.csdn.net/love_gaohz/article/details/6637625
