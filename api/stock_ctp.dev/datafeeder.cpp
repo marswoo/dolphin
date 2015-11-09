@@ -132,14 +132,17 @@ int main()
     DataFeeder* df = new DataFeeder("tcp://180.166.11.40:41213", "2011", "20000479", "154097");
     StrategyPair* stra1 = new StrategyPair("sh600031_sz000157", df);
     StrategyPair* stra2 = new StrategyPair("sz002001_sh600216", df);
+    StrategyPair* stra3 = new StrategyPair("sh601601_sh601628", df);
 
     sleep(1);
     df->register_stock_data(stra1->get_stock_id(0), stra1);
     df->register_stock_data(stra1->get_stock_id(1), stra1);
     df->register_stock_data(stra2->get_stock_id(0), stra2);
     df->register_stock_data(stra2->get_stock_id(1), stra2);
+    df->register_stock_data(stra3->get_stock_id(0), stra3);
+    df->register_stock_data(stra3->get_stock_id(1), stra3);
     //df->display_status();
-    df->buy("sh600216", "100", 200);
+    //df->buy("sh600216", "100", 200);
 
     while(true){
         sleep(1);

@@ -4,30 +4,30 @@
 //check stock_data_str and parse to map
 bool StrategyPair::check_and_parse(vector<string>& tmp_v, map<string, map<string, float> > &stock_data)
 {
-    if (0 == atof(tmp_v[4].c_str()))
+    if (22 > tmp_v.size() || 0 == atof(tmp_v[4].c_str()))
     {
         return false;
     }
 
-    stock_data[tmp_v[0]]["current_price"] = atof(tmp_v[4].c_str());
-    stock_data[tmp_v[0]]["yesterday_close_price"] = atof(tmp_v[5].c_str());
-    stock_data[tmp_v[0]]["today_open_price"] = atof(tmp_v[6].c_str());
-    stock_data[tmp_v[0]]["today_highest_price"] = atof(tmp_v[7].c_str());
-    stock_data[tmp_v[0]]["today_lowest_price"] = atof(tmp_v[8].c_str());
-    stock_data[tmp_v[0]]["volume"] = atof(tmp_v[9].c_str());
-    stock_data[tmp_v[0]]["turnover"] = atof(tmp_v[10].c_str());
-    stock_data[tmp_v[0]]["buy_1_price"] = atof(tmp_v[11].c_str());
-    stock_data[tmp_v[0]]["buy_1_amount"] = atof(tmp_v[12].c_str());
-    stock_data[tmp_v[0]]["buy_2_price"] = atof(tmp_v[13].c_str());
-    stock_data[tmp_v[0]]["buy_2_amount"] = atof(tmp_v[14].c_str());
-    stock_data[tmp_v[0]]["buy_3_price"] = atof(tmp_v[15].c_str());
-    stock_data[tmp_v[0]]["buy_3_amount"] = atof(tmp_v[16].c_str());
-    stock_data[tmp_v[0]]["sell_1_price"] = atof(tmp_v[17].c_str());
-    stock_data[tmp_v[0]]["sell_1_amount"] = atof(tmp_v[18].c_str());
-    stock_data[tmp_v[0]]["sell_2_price"] = atof(tmp_v[19].c_str());
-    stock_data[tmp_v[0]]["sell_2_amount"] = atof(tmp_v[20].c_str());
-    stock_data[tmp_v[0]]["sell_3_price"] = atof(tmp_v[21].c_str());
-    stock_data[tmp_v[0]]["sell_3_amount"] = atof(tmp_v[22].c_str());
+    stock_data[tmp_v[0]]["current_price"] = atof(tmp_v[3].c_str());
+    stock_data[tmp_v[0]]["yesterday_close_price"] = atof(tmp_v[4].c_str());
+    stock_data[tmp_v[0]]["today_open_price"] = atof(tmp_v[5].c_str());
+    stock_data[tmp_v[0]]["today_highest_price"] = atof(tmp_v[6].c_str());
+    stock_data[tmp_v[0]]["today_lowest_price"] = atof(tmp_v[7].c_str());
+    stock_data[tmp_v[0]]["volume"] = atof(tmp_v[8].c_str());
+    stock_data[tmp_v[0]]["turnover"] = atof(tmp_v[9].c_str());
+    stock_data[tmp_v[0]]["buy_1_price"] = atof(tmp_v[10].c_str());
+    stock_data[tmp_v[0]]["buy_1_amount"] = atof(tmp_v[11].c_str());
+    stock_data[tmp_v[0]]["buy_2_price"] = atof(tmp_v[12].c_str());
+    stock_data[tmp_v[0]]["buy_2_amount"] = atof(tmp_v[13].c_str());
+    stock_data[tmp_v[0]]["buy_3_price"] = atof(tmp_v[14].c_str());
+    stock_data[tmp_v[0]]["buy_3_amount"] = atof(tmp_v[15].c_str());
+    stock_data[tmp_v[0]]["sell_1_price"] = atof(tmp_v[16].c_str());
+    stock_data[tmp_v[0]]["sell_1_amount"] = atof(tmp_v[17].c_str());
+    stock_data[tmp_v[0]]["sell_2_price"] = atof(tmp_v[18].c_str());
+    stock_data[tmp_v[0]]["sell_2_amount"] = atof(tmp_v[19].c_str());
+    stock_data[tmp_v[0]]["sell_3_price"] = atof(tmp_v[20].c_str());
+    stock_data[tmp_v[0]]["sell_3_amount"] = atof(tmp_v[21].c_str());
 
     return true;
 }
@@ -144,7 +144,7 @@ void StrategyPair::get_sell_info(string& current_stockid)
 //register a listener
 void StrategyPair::update(const string& stock_data_str, Trader* trader)
 {
-    cout << "--- stockdata: " << stock_data_str << endl;
+    dlog->info(stock_data_str);
 
     vector<string> tmp_v;
     util.split(stock_data_str, ",", tmp_v);

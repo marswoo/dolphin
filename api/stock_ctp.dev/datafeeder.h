@@ -4,6 +4,9 @@
 #include <string>
 #include <map>
 #include <unistd.h>
+#include <log4cpp/Category.hh>
+#include <log4cpp/PropertyConfigurator.hh>
+
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
 #include "trader.h"
@@ -32,6 +35,11 @@ public:
         this->ExchangeIDDict["sz"] = "SZE";
         this->ExchangeIDDict_Reverse["SSE"] = "sh";
         this->ExchangeIDDict_Reverse["SZE"] = "sz";
+
+        log4cpp::PropertyConfigurator::configure("./conf/log4cpp.conf");
+        clog = &log4cpp::Category::getInstance(string("common_log"));
+        dlog = &log4cpp::Category::getInstance(string("data_log"));
+        tlog = &log4cpp::Category::getInstance(string("trade_log"));
     }
 
     ~DataFeeder()
@@ -48,6 +56,9 @@ public:
     void display_status();
 
     Trader *trader;
+    log4cpp::Category* clog;
+    log4cpp::Category* dlog;
+    log4cpp::Category* tlog;
 
 private:
     CZQThostFtdcMdApi *m_pMdApi;

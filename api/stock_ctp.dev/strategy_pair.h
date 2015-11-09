@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdlib.h>
+#include <log4cpp/Category.hh>
 
 #include "ThostFtdcMdApiSSE.h"
 #include "ThostFtdcUserApiStructSSE.h"
@@ -55,6 +56,10 @@ public:
         want_sell_index = -1;
         base_enter_threshold = 0.013;
 
+        clog = df->clog;
+        dlog = df->dlog;
+        tlog = df->tlog;
+
         mean_buy_price.push_back(0);
         mean_buy_price.push_back(0);
         mean_sell_price.push_back(0);
@@ -86,6 +91,10 @@ public:
 private:
     Util util;
     DataFeeder* df;
+
+    log4cpp::Category* clog;
+    log4cpp::Category* dlog;
+    log4cpp::Category* tlog;
 
     map<string, map<string, float> > stock_data;
 
